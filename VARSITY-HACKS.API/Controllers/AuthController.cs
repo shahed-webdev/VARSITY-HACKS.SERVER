@@ -18,8 +18,7 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _config;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
-            IConfiguration config)
+        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IConfiguration config)
         {
             _signInManager = signInManager;
             _userManager = userManager;
