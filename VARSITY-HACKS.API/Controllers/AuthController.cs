@@ -14,22 +14,19 @@ namespace VARSITY_HACKS.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _config;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
-            IConfiguration config)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
             _config = config;
         }
 
-        // POST api/Account/Register
+        // POST api/Auth/Register
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<string>> Register(RegisterBindingModel model)
+        public async Task<ActionResult> Register(RegisterModel model)
         {
             var user = new IdentityUser() { UserName = model.Email, Email = model.Email };
 
@@ -37,7 +34,7 @@ namespace VARSITY_HACKS.API.Controllers
 
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ResponseModel(false, result.Errors.First().Description));
             }
 
             var claims = new[]
@@ -59,7 +56,7 @@ namespace VARSITY_HACKS.API.Controllers
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-            return Ok(tokenString);
+            return Ok(new ResponseModel<string>(true, "Token", tokenString));
         }
     }
 }
