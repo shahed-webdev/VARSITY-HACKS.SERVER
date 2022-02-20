@@ -26,14 +26,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     };
 }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.AllowAnyOrigin();
-        });
-});
+builder.Services.AddCors();
 
 
 builder.Services.AddControllers();
@@ -90,7 +83,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
+app.UseCors(x => x
+       .AllowAnyMethod()
+       .AllowAnyHeader()
+       .SetIsOriginAllowed(origin => true) // allow any origin
+       .AllowCredentials()); // allow credentials
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
