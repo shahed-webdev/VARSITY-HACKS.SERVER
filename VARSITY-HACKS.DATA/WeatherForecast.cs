@@ -1,7 +1,7 @@
-namespace VARSITY_HACKS.API
-{
-    public class WeatherForecast
+namespace VARSITY_HACKS.DATA;
+public class WeatherForecast
     {
+        public int WeatherForecastId { get; set; }
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }
@@ -10,4 +10,3 @@ namespace VARSITY_HACKS.API
 
         public string? Summary { get; set; }
     }
-}
