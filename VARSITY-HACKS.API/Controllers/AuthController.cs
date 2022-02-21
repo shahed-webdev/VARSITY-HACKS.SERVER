@@ -10,22 +10,26 @@ using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config, SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
             _config = config;
+            _signInManager = signInManager;
         }
 
-        // POST api/Auth/Register
+        // POST api/Auth/register
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<ActionResult> Register(RegisterModel model)
         {
             var user = new IdentityUser() { UserName = model.Email, Email = model.Email };
@@ -57,6 +61,48 @@ namespace VARSITY_HACKS.API.Controllers
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             return Ok(new ResponseModel<string>(true, "Token", tokenString));
+        }
+
+        // POST api/Auth/Login
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(LoginModel model)
+        {
+            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ResponseModel(false, "Incorrect username or password"));
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, model.UserName),
+                new Claim(ClaimTypes.Email, model.UserName),
+            };
+
+            var token = new JwtSecurityToken
+            (
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(60),
+                notBefore: DateTime.UtcNow,
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+                    SecurityAlgorithms.HmacSha256)
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new ResponseModel<string>(true, "Token", tokenString));
+        }
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+
+            return Ok(new ResponseModel(true, "SignOut Successfully"));
         }
     }
 }
