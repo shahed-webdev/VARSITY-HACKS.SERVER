@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
 
@@ -63,6 +64,7 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(new ResponseModel<string>(true, "Token", tokenString));
         }
 
+
         // POST api/Auth/Login
         [AllowAnonymous]
         [HttpPost("login")]
@@ -95,14 +97,14 @@ namespace VARSITY_HACKS.API.Controllers
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             return Ok(new ResponseModel<string>(true, "Token", tokenString));
         }
-        [Authorize]
+
+
+        // POST api/Auth/logout
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-
-
-            return Ok(new ResponseModel(true, "SignOut Successfully"));
+            return Ok(new ResponseModel(true, "Sign Out Successfully"));
         }
     }
 }
