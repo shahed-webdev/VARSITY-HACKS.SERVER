@@ -119,9 +119,9 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(new ResponseModel(true, "Sign Out Successfully"));
         }
 
-        // GET api/Auth/getUser
+        // GET api/Auth/getUsers
         [HttpGet("getUser")]
-        public async Task<IActionResult> getUser()
+        public async Task<IActionResult> GetUser()
         {
             var userName = HttpContext.User.Identity?.Name;
             if (string.IsNullOrEmpty(userName)) return BadRequest();
@@ -131,12 +131,13 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
-        // POST api/Auth/getUser
-        [HttpPut("putUser")]
-        public async Task<IActionResult> putUser(RegistrationEditModel model)
+        // POST api/Auth/updateUser
+        [HttpPut("updateUser")]
+        public async Task<IActionResult> PutUser([FromForm]RegistrationEditModel model, [FromForm]IFormFile formFile)
         {
             var userName = HttpContext.User.Identity?.Name;
             if (string.IsNullOrEmpty(userName)) return BadRequest();
+
             var response = await _registration.EditAsync(userName, model);
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);

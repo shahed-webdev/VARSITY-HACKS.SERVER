@@ -13,4 +13,5 @@ public class RegistrationEditModel
     public string? UniversityName { get; set; }
     public string? SocialMediaLink { get; set; }
     public byte[]? Image { get; set; }
+
 }
