@@ -56,6 +56,7 @@ namespace VARSITY_HACKS.API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, model.Email),
+                new Claim(ClaimTypes.Name, model.Email),
                 new Claim(ClaimTypes.Email, model.Email),
             };
 
@@ -123,7 +124,7 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpGet("getUser")]
         public async Task<IActionResult> getUser()
         {
-            var userName = HttpContext.User.Identity?.Name;
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest();
 
             var response = await _registration.GetUserAsync(userName);
@@ -135,7 +136,7 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPut("putUser")]
         public async Task<IActionResult> putUser(RegistrationEditModel model)
         {
-            var userName = HttpContext.User.Identity?.Name;
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest();
             var response = await _registration.EditAsync(userName, model);
             if (!response.IsSuccess) return BadRequest(response.Message);

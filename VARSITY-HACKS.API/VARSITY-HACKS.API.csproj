@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VARSITY-HACKS.BusinessLogic\VARSITY-HACKS.BusinessLogic.csproj" />
+    <ProjectReference Include="..\VARSITY-HACKS.ViewModel\VARSITY-HACKS.ViewModel.csproj" />
   </ItemGroup>
 
 </Project>
