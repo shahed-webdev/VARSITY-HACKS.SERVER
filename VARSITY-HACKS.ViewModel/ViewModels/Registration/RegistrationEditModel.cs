@@ -1,5 +1,4 @@
-﻿using VARSITY_HACKS.DATA;
-
+﻿
 namespace VARSITY_HACKS.ViewModel;
 
 public class RegistrationEditModel

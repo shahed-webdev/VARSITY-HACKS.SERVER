@@ -58,7 +58,6 @@ public class RegistrationRepository:Repository, IRegistrationRepository
 
         return registration == null
             ? new ResponseModel<RegistrationEditModel>(false, "data Not Found")
-            : new ResponseModel<RegistrationEditModel>(true, $"{registration!.Name} Get Successfully",
-                registration);
+            : new ResponseModel<RegistrationEditModel>(true, $"{registration!.Name} Get Successfully", registration);
     }
 }

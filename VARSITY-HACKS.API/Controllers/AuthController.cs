@@ -51,7 +51,7 @@ namespace VARSITY_HACKS.API.Controllers
             //    Name = model.Name
             //};
 
-            await _registration.CreateAsync(model.Name,model.Email);
+            await _registration.CreateAsync(model.Name, model.Email);
 
             var claims = new[]
             {
@@ -125,23 +125,30 @@ namespace VARSITY_HACKS.API.Controllers
         public async Task<IActionResult> GetUser()
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userName)) return BadRequest();
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _registration.GetUserAsync(userName);
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);
         }
 
-        // POST api/Auth/updateUser
+        // PUT api/Auth/updateUser
         [HttpPut("updateUser")]
-        public async Task<IActionResult> PutUser([FromForm]RegistrationEditModel model)
+        public async Task<IActionResult> PutUser([FromForm] RegistrationEditModelWithFormFile model)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userName)) return BadRequest();
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _registration.EditAsync(userName, model);
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);
+        }
+
+
+        //for image file
+        public class RegistrationEditModelWithFormFile : RegistrationEditModel
+        {
+            public IFormFile? FormFile { get; set; }
         }
     }
 }
