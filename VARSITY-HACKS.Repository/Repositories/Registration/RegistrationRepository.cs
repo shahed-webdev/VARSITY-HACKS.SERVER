@@ -27,7 +27,7 @@ public class RegistrationRepository:Repository, IRegistrationRepository
         registration.SocialMediaLink = model.SocialMediaLink;
         registration.UniversityName = model.UniversityName;
         registration.Subject = model.Subject;
-        registration.Personality = model.Personality;
+        registration.Personality = (PersonalityType)Enum.Parse(typeof(PersonalityType), model.Personality, true); 
         registration.Email = model.Email;
         registration.Image = model.Image;
         Db.Registrations.Update(registration);
