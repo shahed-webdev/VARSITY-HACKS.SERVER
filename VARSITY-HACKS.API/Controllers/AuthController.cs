@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VARSITY_HACKS.BusinessLogic.Registration;
+using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
@@ -133,17 +134,14 @@ namespace VARSITY_HACKS.API.Controllers
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+            if (model.FormFile != null && model.FormFile.Length > 0)
+            {
+                model.Image = await model.FormFile.GetBytesAsync();
+            }
 
             var response = await _registration.EditAsync(userName, model);
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);
-        }
-
-
-        //for image file
-        public class RegistrationEditModelWithFormFile : RegistrationEditModel
-        {
-            public IFormFile? FormFile { get; set; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿
+﻿using Microsoft.AspNetCore.Http;
+
 namespace VARSITY_HACKS.ViewModel;
 
 public class RegistrationEditModel
@@ -13,4 +14,10 @@ public class RegistrationEditModel
     public string? Subject { get; set; }
     public string? SocialMediaLink { get; set; }
     public byte[]? Image { get; set; }
+}
+
+//for image file
+public class RegistrationEditModelWithFormFile : RegistrationEditModel
+{
+    public IFormFile? FormFile { get; set; }
 }
