@@ -23,6 +23,7 @@ namespace VARSITY_HACKS.DATA.Migrations
                     City = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     State = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     UniversityName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    Subject = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     SocialMediaLink = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     InsertDateUtc = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "getutcdate()")

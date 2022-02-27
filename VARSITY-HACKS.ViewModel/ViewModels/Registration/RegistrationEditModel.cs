@@ -11,6 +11,7 @@ public class RegistrationEditModel
     public string? City { get; set; }
     public string? State { get; set; }
     public string? UniversityName { get; set; }
+    public string? Subject { get; set; }
     public string? SocialMediaLink { get; set; }
     public byte[]? Image { get; set; }
 

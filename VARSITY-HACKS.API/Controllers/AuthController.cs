@@ -134,7 +134,7 @@ namespace VARSITY_HACKS.API.Controllers
 
         // POST api/Auth/updateUser
         [HttpPut("updateUser")]
-        public async Task<IActionResult> PutUser([FromForm]RegistrationEditModel model, [FromForm]IFormFile formFile)
+        public async Task<IActionResult> PutUser([FromForm]RegistrationEditModel model)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest();

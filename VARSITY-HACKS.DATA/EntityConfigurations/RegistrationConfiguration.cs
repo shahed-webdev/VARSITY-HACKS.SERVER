@@ -14,6 +14,7 @@ public class RegistrationConfiguration: IEntityTypeConfiguration<Registration>
         builder.Property(e => e.City).HasMaxLength(128);
         builder.Property(e => e.State).HasMaxLength(128);
         builder.Property(e => e.UniversityName).HasMaxLength(128);
+        builder.Property(e => e.Subject).HasMaxLength(128);
         builder.Property(e => e.SocialMediaLink).HasMaxLength(512);
        
         builder.Property(e => e.InsertDateUtc)

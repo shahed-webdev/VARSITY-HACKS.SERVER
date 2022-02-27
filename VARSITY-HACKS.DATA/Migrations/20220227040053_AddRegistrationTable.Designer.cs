@@ -12,7 +12,7 @@ using VARSITY_HACKS.DATA;
 namespace VARSITY_HACKS.DATA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220227021955_AddRegistrationTable")]
+    [Migration("20220227040053_AddRegistrationTable")]
     partial class AddRegistrationTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -260,6 +260,10 @@ namespace VARSITY_HACKS.DATA.Migrations
                         .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("State")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Subject")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 

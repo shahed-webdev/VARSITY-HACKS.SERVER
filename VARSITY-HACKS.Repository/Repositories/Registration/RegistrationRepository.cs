@@ -26,6 +26,7 @@ public class RegistrationRepository:Repository, IRegistrationRepository
         registration.State = model.State;
         registration.SocialMediaLink = model.SocialMediaLink;
         registration.UniversityName = model.UniversityName;
+        registration.Subject = model.Subject;
         registration.Personality = model.Personality;
         registration.Email = model.Email;
         registration.Image = model.Image;

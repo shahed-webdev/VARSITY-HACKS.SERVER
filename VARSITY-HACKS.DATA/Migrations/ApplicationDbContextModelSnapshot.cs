@@ -261,6 +261,10 @@ namespace VARSITY_HACKS.DATA.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<string>("Subject")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.Property<string>("UniversityName")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
