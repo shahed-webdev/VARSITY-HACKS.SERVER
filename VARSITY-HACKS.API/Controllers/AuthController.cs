@@ -22,8 +22,7 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly IConfiguration _config;
         private readonly IRegistrationCore _registration;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,
-            SignInManager<IdentityUser> signInManager, IRegistrationCore registration)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration)
         {
             _userManager = userManager;
             _config = config;
@@ -67,9 +66,7 @@ namespace VARSITY_HACKS.API.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(60),
                 notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
-                    SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),SecurityAlgorithms.HmacSha256)
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
@@ -102,9 +99,7 @@ namespace VARSITY_HACKS.API.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(60),
                 notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
-                    SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),SecurityAlgorithms.HmacSha256)
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
