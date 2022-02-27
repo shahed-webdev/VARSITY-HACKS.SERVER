@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VARSITY_HACKS.BusinessLogic.Registration;
 using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
@@ -14,18 +15,20 @@ namespace VARSITY_HACKS.API.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
-
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
+        private readonly IRegistrationCore _registration;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config, SignInManager<IdentityUser> signInManager)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,
+            SignInManager<IdentityUser> signInManager, IRegistrationCore registration)
         {
             _userManager = userManager;
             _config = config;
             _signInManager = signInManager;
+            _registration = registration;
         }
 
         // POST api/Auth/register
@@ -41,6 +44,14 @@ namespace VARSITY_HACKS.API.Controllers
             {
                 return BadRequest(new ResponseModel(false, result.Errors.First().Description));
             }
+
+            //var createModel = new RegistrationCreateModel
+            //{
+            //    UserName = model.Email,
+            //    Name = model.Name
+            //};
+
+            await _registration.CreateAsync(model.Name,model.Email);
 
             var claims = new[]
             {
@@ -70,7 +81,8 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginModel model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+            var result =
+                await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
             if (!result.Succeeded)
             {
                 return BadRequest(new ResponseModel(false, "Incorrect username or password"));
@@ -105,6 +117,29 @@ namespace VARSITY_HACKS.API.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok(new ResponseModel(true, "Sign Out Successfully"));
+        }
+
+        // GET api/Auth/getUser
+        [HttpGet("getUser")]
+        public async Task<IActionResult> getUser()
+        {
+            var userName = HttpContext.User.Identity?.Name;
+            if (string.IsNullOrEmpty(userName)) return BadRequest();
+
+            var response = await _registration.GetUserAsync(userName);
+            if (!response.IsSuccess) return BadRequest(response.Message);
+            return Ok(response);
+        }
+
+        // POST api/Auth/getUser
+        [HttpPut("putUser")]
+        public async Task<IActionResult> putUser(RegistrationEditModel model)
+        {
+            var userName = HttpContext.User.Identity?.Name;
+            if (string.IsNullOrEmpty(userName)) return BadRequest();
+            var response = await _registration.EditAsync(userName, model);
+            if (!response.IsSuccess) return BadRequest(response.Message);
+            return Ok(response);
         }
     }
 }
