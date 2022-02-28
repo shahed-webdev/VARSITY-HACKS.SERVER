@@ -43,7 +43,7 @@ namespace VARSITY_HACKS.API.Controllers
 
             var response = await _event.GetEventsAsync(userName);
             if (!response.IsSuccess) return BadRequest(response.Message);
-            return Ok();
+            return Ok(response);
         }
 
         // GET api/event/calendar-events
@@ -55,7 +55,7 @@ namespace VARSITY_HACKS.API.Controllers
 
             var response = await _event.GetCalendarEventsAsync(userName);
             if (!response.IsSuccess) return BadRequest(response.Message);
-            return Ok();
+            return Ok(response);
         }
     }
 }
