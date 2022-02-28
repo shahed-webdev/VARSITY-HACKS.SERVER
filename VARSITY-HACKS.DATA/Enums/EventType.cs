@@ -1,6 +1,6 @@
 ﻿namespace VARSITY_HACKS.DATA;
 
-public enum TaskType
+public enum EventType
 {
     School,
     Work,

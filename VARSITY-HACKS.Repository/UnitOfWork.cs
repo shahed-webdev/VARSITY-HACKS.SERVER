@@ -12,9 +12,11 @@ namespace VARSITY_HACKS.Repository
         {
             _db = db;
             Registration = new RegistrationRepository(_db, mapper);
+            UserEvent = new UserEventRepository(db, mapper);
         }
 
         public IRegistrationRepository Registration { get; }
+        public IUserEventRepository UserEvent { get; }
 
 
         public int SaveChanges()

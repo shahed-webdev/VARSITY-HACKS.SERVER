@@ -1,15 +1,17 @@
 ﻿namespace VARSITY_HACKS.DATA;
 
-public class UserTask
+public class UserEvent
 {
-    public UserTask()
+    public UserEvent()
     {
-        Days = new HashSet<UserTaskDay>();
-        CalendarTaskList = new HashSet<UserTaskCalendar>();
+        Days = new HashSet<UserEventDay>();
+        CalendarEvents = new HashSet<UserCalendarEvent>();
     }
-    public int UserTaskId { get; set; }
+
+    public int UserEventId { get; set; }
     public int RegistrationId { get; set; }
-    public string TaskName { get; set; } = null!;
+    public string EventName { get; set; } = null!;
+    public EventType EventType { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public TimeSpan StartTime { get; set; }
@@ -17,9 +19,9 @@ public class UserTask
     public int DurationMinute { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public PriorityLevel Priority { get; set; }
-    public DateTime InsertDateUtc { get; set; }
     public bool IsSimultaneous { get; set; }
+    public DateTime InsertDateUtc { get; set; }
     public virtual Registration Registration { get; set; } = null!;
-    public virtual ICollection<UserTaskDay> Days { get; set; }
-    public virtual ICollection<UserTaskCalendar> CalendarTaskList { get; set; }
+    public virtual ICollection<UserEventDay> Days { get; set; }
+    public virtual ICollection<UserCalendarEvent> CalendarEvents { get; set; }
 }

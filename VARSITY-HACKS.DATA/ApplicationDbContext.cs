@@ -10,9 +10,9 @@ public class ApplicationDbContext : IdentityDbContext
     }
     
     public virtual DbSet<Registration> Registrations { get; set; } = null!;
-    //public virtual DbSet<UserTask> UserTasks { get; set; } = null!;
-    //public virtual DbSet<UserTaskDay> UserTaskDays { get; set; } = null!;
-    //public virtual DbSet<UserTaskCalendar> UserTaskCalendars { get; set; } = null!;
+    public virtual DbSet<UserEvent> UserEvents { get; set; } = null!;
+    public virtual DbSet<UserEventDay> UserEventDays { get; set; } = null!;
+    public virtual DbSet<UserCalendarEvent> UserCalendarEvents { get; set; } = null!;
 
     //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //{
@@ -26,9 +26,9 @@ public class ApplicationDbContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new RegistrationConfiguration());
-        //modelBuilder.ApplyConfiguration(new UserTaskConfiguration());
-        //modelBuilder.ApplyConfiguration(new UserTaskDayConfiguration());
-        //modelBuilder.ApplyConfiguration(new UserTaskCalendarConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEventConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEventDayConfiguration());
+        modelBuilder.ApplyConfiguration(new UserCalendarEventConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

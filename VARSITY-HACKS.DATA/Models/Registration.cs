@@ -2,11 +2,11 @@
 
 public class Registration
 {
-    //public Registration()
-    //{
-    //    Tasks = new HashSet<UserTask>();
-    //    CalendarTaskList = new HashSet<UserTaskCalendar>();
-    //}
+    public Registration()
+    {
+        Events = new HashSet<UserEvent>();
+        CalendarEvents = new HashSet<UserCalendarEvent>();
+    }
     public int RegistrationId { get; set; }
     public string UserName { get; set; } = null!;
     public bool Validation { get; set; }
@@ -21,6 +21,6 @@ public class Registration
     public byte[]? Image { get; set; }
     public DateTime InsertDateUtc { get; set; }
 
-   // public virtual ICollection<UserTask> Tasks { get; set; }
-   // public virtual ICollection<UserTaskCalendar> CalendarTaskList { get; set; }
+    public virtual ICollection<UserEvent> Events { get; set; }
+    public virtual ICollection<UserCalendarEvent> CalendarEvents { get; set; }
 }
