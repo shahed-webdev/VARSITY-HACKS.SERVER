@@ -10,6 +10,7 @@ public class RegistrationMappingProfile: Profile
     {
         CreateMap<Registration, RegistrationEditModel>()
             .ForMember(d => d.Personality, opt => opt.MapFrom(c => c.Personality.ToString()))
+            .ForMember(d => d.Personality, opt => opt.MapFrom(c => c.Personality.GetDescription()))
             .ReverseMap();
         CreateMap<RegistrationCreateModel, Registration>()
             .ForMember(d=> d.Email, opt=> opt.MapFrom(c=> c.UserName))

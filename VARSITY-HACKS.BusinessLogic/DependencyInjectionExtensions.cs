@@ -10,6 +10,7 @@ namespace VARSITY_HACKS.BusinessLogic
         {
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IRegistrationCore, RegistrationCore>();
+            services.AddTransient<IEventCore, EventCore>();
 
 
             return services;

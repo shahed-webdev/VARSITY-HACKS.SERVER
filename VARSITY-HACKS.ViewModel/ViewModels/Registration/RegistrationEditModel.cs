@@ -6,6 +6,7 @@ public class RegistrationEditModel
 {
     public int RegistrationId { get; set; }
     public string Personality { get; set; } = null!;
+    public string PersonalityDescription { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string? Email { get; set; }
     public string? City { get; set; }
