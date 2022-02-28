@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using VARSITY_HACKS.BusinessLogic;
-using VARSITY_HACKS.BusinessLogic.Registration;
 using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
@@ -30,7 +28,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _event.AddAsync(userName,model);
-            if (!response.IsSuccess) return BadRequest(response.Message);
+            if (!response.IsSuccess) return BadRequest(response);
             return Created("",response);
         }
        
@@ -42,7 +40,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _event.GetEventsAsync(userName);
-            if (!response.IsSuccess) return BadRequest(response.Message);
+            if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }
 
@@ -54,7 +52,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _event.GetCalendarEventsAsync(userName);
-            if (!response.IsSuccess) return BadRequest(response.Message);
+            if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }
     }
