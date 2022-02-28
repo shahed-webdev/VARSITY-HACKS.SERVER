@@ -28,9 +28,9 @@ namespace VARSITY_HACKS.API.Controllers
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            //var response = await _registration.GetUserAsync(userName);
-            //if (!response.IsSuccess) return BadRequest(response.Message);
-            return Ok();
+            var response = await _event.AddAsync(userName,model);
+            if (!response.IsSuccess) return BadRequest(response.Message);
+            return Created("",response);
         }
         // GET api/event/get
         [HttpGet("get")]
@@ -39,8 +39,8 @@ namespace VARSITY_HACKS.API.Controllers
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            //var response = await _registration.GetUserAsync(userName);
-            //if (!response.IsSuccess) return BadRequest(response.Message);
+            var response = await _event.GetEventsAsync(userName);
+            if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok();
         }
 
@@ -51,8 +51,8 @@ namespace VARSITY_HACKS.API.Controllers
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            //var response = await _registration.GetUserAsync(userName);
-            //if (!response.IsSuccess) return BadRequest(response.Message);
+            var response = await _event.GetCalendarEventsAsync(userName);
+            if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok();
         }
     }
