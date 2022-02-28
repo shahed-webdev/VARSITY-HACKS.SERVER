@@ -35,11 +35,31 @@ public class EventCore :Core, IEventCore
 
     public Task<ResponseModel<List<UserEventViewModel>>> GetEventsAsync(string userName)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+            var data = _db.UserEvent.List(registrationId);
+            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(true,"Success", data));
+
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
     }
 
     public Task<ResponseModel<List<UserCalendarViewModel>>> GetCalendarEventsAsync(string userName)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+            var data = _db.UserEvent.CalendarList(registrationId);
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, "Success", data));
+
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
     }
 }

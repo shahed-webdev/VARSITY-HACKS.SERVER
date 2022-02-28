@@ -10,4 +10,5 @@ public interface IUserEventRepository
     bool IsExistName(int registrationId, string name, int updateId);
     bool IsNull(int id);
     List<UserEventViewModel> List(int registrationId);
+    List<UserCalendarViewModel> CalendarList(int registrationId);
 }

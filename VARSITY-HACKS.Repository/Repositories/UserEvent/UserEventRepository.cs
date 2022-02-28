@@ -70,6 +70,14 @@ public class UserEventRepository : Repository, IUserEventRepository
             .ToList();
     }
 
+    public List<UserCalendarViewModel> CalendarList(int registrationId)
+    {
+        return Db.UserCalendarEvents.Where(m => m.RegistrationId == registrationId)
+            .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider)
+            .OrderBy(a => a.EventName)
+            .ToList();
+    }
+
     private IEnumerable<DateTime> EachDate(DateTime from, DateTime to)
     {
         for (var day = from.Date; day.Date <= to.Date; day = day.AddDays(1))
