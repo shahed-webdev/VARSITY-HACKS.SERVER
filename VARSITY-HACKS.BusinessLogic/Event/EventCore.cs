@@ -24,7 +24,7 @@ public class EventCore :Core, IEventCore
             if (_db.UserEvent.IsExistName(registrationId, model.EventName))
                 return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} already Exist"));
 
-            return Task.FromResult(_db.UserEvent.Add(model));
+            return Task.FromResult(_db.UserEvent.Add(registrationId, model));
 
         }
         catch (Exception e)

@@ -4,7 +4,7 @@ namespace VARSITY_HACKS.Repository;
 
 public interface IUserEventRepository
 {
-    ResponseModel<List<UserCalendarViewModel>> Add(UserEventAddModel model);
+    ResponseModel<List<UserCalendarViewModel>> Add(int registrationId, UserEventAddModel model);
     ResponseModel<UserEventViewModel> Get(int id);
     bool IsExistName(int registrationId, string name);
     bool IsExistName(int registrationId, string name, int updateId);

@@ -8,7 +8,7 @@ public class UserEventAddModel
     public EventType EventType { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public TimeSpan StartTime { get; set; }
+    public string StartTime { get; set; }
     public int DurationMinute { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public PriorityLevel Priority { get; set; }

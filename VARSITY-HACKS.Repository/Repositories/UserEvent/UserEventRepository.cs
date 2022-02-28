@@ -11,9 +11,10 @@ public class UserEventRepository : Repository, IUserEventRepository
     {
     }
 
-    public ResponseModel<List<UserCalendarViewModel>> Add(UserEventAddModel model)
+    public ResponseModel<List<UserCalendarViewModel>> Add(int registrationId, UserEventAddModel model)
     {
         var userEvent = _mapper.Map<UserEvent>(model);
+        userEvent.RegistrationId = registrationId;
         Db.UserEvents.Add(userEvent);
         Db.SaveChanges();
 

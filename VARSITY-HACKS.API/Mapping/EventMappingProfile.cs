@@ -9,6 +9,7 @@ public class EventMappingProfile: Profile
     public EventMappingProfile()
     {
         CreateMap<UserEventAddModel, UserEvent>()
+            .ForMember(d => d.StartTime, opt => opt.MapFrom(c => TimeSpan.Parse(c.StartTime)))
             .ForMember(d => d.Days, opt => opt.MapFrom(c => c.Days.Select(d => new UserEventDay
             {
                 Day = d,
