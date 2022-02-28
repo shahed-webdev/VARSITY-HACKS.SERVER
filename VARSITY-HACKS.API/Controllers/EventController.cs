@@ -21,9 +21,10 @@ namespace VARSITY_HACKS.API.Controllers
         {
             _event = @event;
         }
-        // GET api/event/get
-        [HttpPost("post")]
-        public async Task<IActionResult> AddEvent([FromBody] UserEventAddModel model)
+       
+        // POST api/event/add
+        [HttpPost("add")]
+        public async Task<IActionResult> AddEvent(UserEventAddModel model)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
@@ -32,6 +33,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Created("",response);
         }
+       
         // GET api/event/get
         [HttpGet("get")]
         public async Task<IActionResult> GetEvents()
@@ -44,7 +46,7 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok();
         }
 
-        // GET api/event/get
+        // GET api/event/calendar-events
         [HttpGet("calendar-events")]
         public async Task<IActionResult> GetCalendarEvents()
         {
