@@ -22,6 +22,7 @@ public class EventMappingProfile: Profile
             .ReverseMap();
         CreateMap<UserCalendarEvent, UserCalendarViewModel>()
             .ForMember(d => d.EventName, opt => opt.MapFrom(c => c.UserEvent.EventName))
+            .ForMember(d => d.BackgroundColor, opt => opt.MapFrom(c => c.UserEvent.BackgroundColor))
             .ForMember(d => d.EventType, opt => opt.MapFrom(c => c.UserEvent.EventType.ToString()))
             .ForMember(d => d.Priority, opt => opt.MapFrom(c => c.Priority.ToString()))
             .ForMember(d => d.Difficulty, opt => opt.MapFrom(c => c.Difficulty.ToString()))

@@ -4,6 +4,7 @@ public class UserEventViewModel
 {
     public int UserEventId { get; set; }
     public string EventName { get; set; } = null!;
+    public string? BackgroundColor { get; set; }
     public string EventType { get; set; } = null!;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }

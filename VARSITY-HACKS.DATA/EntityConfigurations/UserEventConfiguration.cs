@@ -9,6 +9,7 @@ public class UserEventConfiguration : IEntityTypeConfiguration<UserEvent>
     {
         builder.ToTable("UserEvent");
         builder.Property(e => e.EventName).HasMaxLength(128);
+        builder.Property(e => e.BackgroundColor).HasMaxLength(50);
         builder.Property(e => e.EventType)
             .HasColumnName("EventTypeId")
             .IsRequired();

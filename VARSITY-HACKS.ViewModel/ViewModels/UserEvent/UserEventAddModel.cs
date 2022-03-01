@@ -5,10 +5,11 @@ namespace VARSITY_HACKS.ViewModel;
 public class UserEventAddModel
 {
     public string EventName { get; set; } = null!;
+    public string? BackgroundColor { get; set; }
     public EventType EventType { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public string StartTime { get; set; }
+    public string StartTime { get; set; } = null!;
     public int DurationMinute { get; set; }
     public DifficultyLevel Difficulty { get; set; }
     public PriorityLevel Priority { get; set; }

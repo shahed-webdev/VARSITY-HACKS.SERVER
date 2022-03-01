@@ -5,6 +5,7 @@ public class UserCalendarViewModel
     public int UserCalendarEventId { get; set; }
     public int UserEventId { get; set; }
     public string EventName { get; set; } = null!;
+    public string? BackgroundColor { get; set; }
     public string EventType { get; set; } = null!;
     public string? SubTitle { get; set; }
     public DateTime StartDateTime { get; set; }

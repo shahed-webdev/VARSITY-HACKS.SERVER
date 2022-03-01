@@ -11,6 +11,7 @@ public class UserEvent
     public int UserEventId { get; set; }
     public int RegistrationId { get; set; }
     public string EventName { get; set; } = null!;
+    public string? BackgroundColor { get; set; } 
     public EventType EventType { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
