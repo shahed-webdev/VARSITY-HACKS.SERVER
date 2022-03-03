@@ -133,14 +133,18 @@ namespace VARSITY_HACKS.API.Controllers
         public async Task<IActionResult> PutUser([FromForm] RegistrationEditModelWithFormFile model)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+           
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+            
             if (model.FormFile != null && model.FormFile.Length > 0)
             {
                 model.Image = await model.FormFile.GetBytesAsync();
             }
 
             var response = await _registration.EditAsync(userName, model);
+            
             if (!response.IsSuccess) return BadRequest(response.Message);
+           
             return Ok(response);
         }
     }
