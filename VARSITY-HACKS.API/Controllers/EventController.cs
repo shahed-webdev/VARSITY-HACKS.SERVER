@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using VARSITY_HACKS.BusinessLogic;
+using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.API.Controllers
@@ -33,13 +34,13 @@ namespace VARSITY_HACKS.API.Controllers
         }
        
         // GET api/event/get
-        [HttpGet("get")]
-        public async Task<IActionResult> GetEvents()
+        [HttpGet("get/{type}")]
+        public async Task<IActionResult> GetEvents(EventType type)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            var response = await _event.GetEventsAsync(userName);
+            var response = await _event.GetEventsAsync(userName, type);
             if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }

@@ -21,7 +21,7 @@ public class UserEventRepository : Repository, IUserEventRepository
         var userCalendarEvents = new List<UserCalendarEvent>();
         foreach (DateTime date in EachDate(userEvent.StartDate, userEvent.EndDate))
         {
-            if(userEvent.Days.Any(d=> d.Day == date.DayOfWeek))
+            if (userEvent.Days.Any(d => d.Day == date.DayOfWeek))
             {
                 var userCalendarEvent = _mapper.Map<UserCalendarEvent>(userEvent);
                 userCalendarEvent.EventDate = date;
@@ -29,6 +29,7 @@ public class UserEventRepository : Repository, IUserEventRepository
                 userCalendarEvents.Add(userCalendarEvent);
             }
         }
+
         Db.UserCalendarEvents.AddRange(userCalendarEvents);
         Db.SaveChanges();
 
@@ -63,9 +64,9 @@ public class UserEventRepository : Repository, IUserEventRepository
         return !Db.UserEvents.Any(r => r.UserEventId == id);
     }
 
-    public List<UserEventViewModel> List(int registrationId)
+    public List<UserEventViewModel> List(int registrationId, EventType type)
     {
-        return Db.UserEvents.Where(m => m.RegistrationId == registrationId)
+        return Db.UserEvents.Where(m => m.RegistrationId == registrationId && m.EventType == type)
             .ProjectTo<UserEventViewModel>(_mapper.ConfigurationProvider)
             .OrderBy(a => a.EventName)
             .ToList();
