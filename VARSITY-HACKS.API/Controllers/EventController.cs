@@ -40,7 +40,7 @@ namespace VARSITY_HACKS.API.Controllers
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            var response = await _event.GetEventsAsync(userName);
+            var response = await _event.GetEventsAsync(userName, type);
             
             if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
