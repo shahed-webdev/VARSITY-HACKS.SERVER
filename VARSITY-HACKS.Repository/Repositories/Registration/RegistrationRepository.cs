@@ -16,10 +16,10 @@ public class RegistrationRepository:Repository, IRegistrationRepository
         return Db.Registrations.FirstOrDefault(r => r.UserName == userName)?.RegistrationId ?? 0;
     }
     
-    public ResponseModel Edit(string userName, RegistrationEditModel model)
+    public ResponseModel<RegistrationEditModel> Edit(string userName, RegistrationEditModel model)
     {
         var registration = Db.Registrations.FirstOrDefault(r => r.UserName == userName);
-        if (registration == null) return new ResponseModel(false, "data Not Found");
+        if (registration == null) return new ResponseModel<RegistrationEditModel>(false, "data Not Found");
 
         registration.Name = model.Name;
         registration.City = model.City;
@@ -29,10 +29,13 @@ public class RegistrationRepository:Repository, IRegistrationRepository
         registration.Subject = model.Subject;
         registration.Personality = (PersonalityType)Enum.Parse(typeof(PersonalityType), model.Personality, true); 
         registration.Email = model.Email;
-        registration.Image = model.Image;
+        if(model.Image != null)
+            registration.Image = model.Image;
         Db.Registrations.Update(registration);
         Db.SaveChanges();
-        return new ResponseModel(true, $"{registration.UserName} Updated Successfully");
+
+        var registrationModel = _mapper.Map<RegistrationEditModel>(registration);
+        return new ResponseModel<RegistrationEditModel>(true, $"{registration.UserName} Updated Successfully", registrationModel);
     }
 
     public void Create(string name, string userName)

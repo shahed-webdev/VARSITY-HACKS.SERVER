@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.Repository;
 using VARSITY_HACKS.ViewModel;
 
 namespace VARSITY_HACKS.BusinessLogic;
 
-public class EventCore :Core, IEventCore
+public class EventCore : Core, IEventCore
 {
     public EventCore(IUnitOfWork db, IMapper mapper) : base(db, mapper)
     {
@@ -20,31 +21,32 @@ public class EventCore :Core, IEventCore
                 return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, "Invalid Data"));
 
 
-
             if (_db.UserEvent.IsExistName(registrationId, model.EventName))
-                return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} already Exist"));
+                return Task.FromResult(
+                    new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} already Exist"));
 
             return Task.FromResult(_db.UserEvent.Add(registrationId, model));
-
         }
         catch (Exception e)
         {
-            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
         }
     }
 
-    public Task<ResponseModel<List<UserEventViewModel>>> GetEventsAsync(string userName)
+
+    public Task<ResponseModel<List<UserEventViewModel>>> GetEventsAsync(string userName, EventType type)
     {
         try
         {
             var registrationId = _db.Registration.RegistrationIdByUserName(userName);
-            var data = _db.UserEvent.List(registrationId);
-            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(true,"Success", data));
-
+            var data = _db.UserEvent.List(registrationId, type);
+            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(true, "Success", data));
         }
         catch (Exception e)
         {
-            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+            return Task.FromResult(new ResponseModel<List<UserEventViewModel>>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
         }
     }
 
@@ -55,11 +57,11 @@ public class EventCore :Core, IEventCore
             var registrationId = _db.Registration.RegistrationIdByUserName(userName);
             var data = _db.UserEvent.CalendarList(registrationId);
             return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, "Success", data));
-
         }
         catch (Exception e)
         {
-            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
         }
     }
 }

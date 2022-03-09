@@ -2,7 +2,7 @@
 
 public enum EventType
 {
-    School,
+    School = 1,
     Work,
     Personal
 }

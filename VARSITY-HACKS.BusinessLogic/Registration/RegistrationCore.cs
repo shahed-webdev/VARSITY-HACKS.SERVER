@@ -23,7 +23,7 @@ public class RegistrationCore : Core, IRegistrationCore
         }
     }
 
-    public Task<ResponseModel> EditAsync(string userName, RegistrationEditModel model)
+    public Task<ResponseModel<RegistrationEditModel>> EditAsync(string userName, RegistrationEditModel model)
     {
         try
         {
@@ -32,7 +32,7 @@ public class RegistrationCore : Core, IRegistrationCore
         catch (Exception e)
         {
             return Task.FromResult(
-                new ResponseModel(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+                new ResponseModel<RegistrationEditModel>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
         }
     }
 
