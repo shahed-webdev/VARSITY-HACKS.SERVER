@@ -63,4 +63,25 @@ public class RegistrationRepository:Repository, IRegistrationRepository
             ? new ResponseModel<RegistrationEditModel>(false, "data Not Found")
             : new ResponseModel<RegistrationEditModel>(true, $"{registration!.Name} Get Successfully", registration);
     }
+
+    public ResponseModel<string> GetMode(string userName)
+    {
+        var registration = Db.Registrations.FirstOrDefault(r => r.UserName == userName);
+
+        return registration == null
+            ? new ResponseModel<string>(false, "data Not Found")
+            : new ResponseModel<string>(true, $"Get Successfully", registration.Mode.ToString());
+    }
+
+    public ResponseModel<string> SetMode(string userName, UserMode mode)
+    {
+        var registration = Db.Registrations.FirstOrDefault(r => r.UserName == userName);
+        if (registration == null) return new ResponseModel<string>(false, "data Not Found");
+
+        registration.Mode = mode;
+        
+        Db.Registrations.Update(registration);
+        Db.SaveChanges();
+        return new ResponseModel<string>(true, $"Update Successfully", registration.Mode.ToString());
+    }
 }

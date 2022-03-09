@@ -148,5 +148,33 @@ namespace VARSITY_HACKS.API.Controllers
            
             return Ok(response);
         }
+
+
+        // GET api/Auth/get-mode
+        [HttpGet("get-mode")]
+        public async Task<IActionResult> GetMode()
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _registration.GetModeAsync(userName);
+
+            if (!response.IsSuccess) return BadRequest(response.Message);
+            return Ok(response);
+        }
+
+        // GET api/Auth/get-mode
+        [HttpPut("set-mode")]
+        public async Task<IActionResult> SetMode(UserMode mode)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _registration.SetModeAsync(userName, mode);
+
+            if (!response.IsSuccess) return BadRequest(response.Message);
+            return Ok(response);
+        }
+
     }
 }

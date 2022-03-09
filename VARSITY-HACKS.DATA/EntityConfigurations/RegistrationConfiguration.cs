@@ -26,7 +26,12 @@ public class RegistrationConfiguration: IEntityTypeConfiguration<Registration>
             //.HasConversion<string>()
             .HasColumnName("PersonalityTypeId")
             .IsRequired();
-
+        builder.Property(e => e.Mode)
+            //.HasMaxLength(50)
+            //.HasConversion<string>()
+            .HasColumnName("UserModeId")
+            .HasDefaultValueSql("1")
+            .IsRequired();
 
         builder.Property(e => e.Validation)
             .IsRequired()

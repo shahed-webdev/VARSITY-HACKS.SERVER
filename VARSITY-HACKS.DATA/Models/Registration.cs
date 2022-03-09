@@ -11,6 +11,7 @@ public class Registration
     public string UserName { get; set; } = null!;
     public bool Validation { get; set; }
     public PersonalityType Personality { get; set; }
+    public UserMode Mode { get; set; }
     public string Name { get; set; } = null!;
     public string? Email { get; set; }
     public string? City { get; set; }

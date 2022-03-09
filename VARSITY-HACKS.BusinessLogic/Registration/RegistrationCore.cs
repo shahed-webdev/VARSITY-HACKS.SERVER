@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.Repository;
 using VARSITY_HACKS.ViewModel;
 
@@ -47,6 +48,33 @@ public class RegistrationCore : Core, IRegistrationCore
         {
             return Task.FromResult(
                 new ResponseModel(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
+    public Task<ResponseModel<string>> GetModeAsync(string userName)
+    {
+        try
+        {
+    
+            return Task.FromResult(_db.Registration.GetMode(userName));
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(
+                new ResponseModel<string>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
+    public Task<ResponseModel<string>> SetModeAsync(string userName, UserMode mode)
+    {
+        try
+        {
+            return Task.FromResult(_db.Registration.SetMode(userName, mode));
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(
+                new ResponseModel<string>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
         }
     }
 }
