@@ -124,6 +124,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _registration.GetUserAsync(userName);
+            
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);
         }
