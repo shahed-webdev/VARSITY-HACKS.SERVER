@@ -46,6 +46,18 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        // GET api/event/get-all-type
+        [HttpGet("get-all-type")]
+        public async Task<IActionResult> GetTypeWiseEvents()
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.GetTypeWiseEventsAsync(userName);
+
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }
         // GET api/event/calendar-events
         [HttpGet("calendar-events")]
         public async Task<IActionResult> GetCalendarEvents()

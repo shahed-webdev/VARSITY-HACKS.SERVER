@@ -50,6 +50,27 @@ public class EventCore : Core, IEventCore
         }
     }
 
+    public Task<ResponseModel<EventTypeWiseEventViewModel>> GetTypeWiseEventsAsync(string userName)
+    {
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+            var data = new EventTypeWiseEventViewModel
+            {
+                School = _db.UserEvent.List(registrationId, EventType.School),
+                Personal = _db.UserEvent.List(registrationId, EventType.Personal),
+                Work = _db.UserEvent.List(registrationId, EventType.Work)
+            };
+
+            return Task.FromResult(new ResponseModel<EventTypeWiseEventViewModel>(true, "Success", data));
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<EventTypeWiseEventViewModel>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
     public Task<ResponseModel<List<UserCalendarViewModel>>> GetCalendarEventsAsync(string userName)
     {
         try
