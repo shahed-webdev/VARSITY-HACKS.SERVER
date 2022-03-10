@@ -165,7 +165,7 @@ namespace VARSITY_HACKS.API.Controllers
 
         // GET api/Auth/get-mode
         [HttpPut("set-mode")]
-        public async Task<IActionResult> SetMode(UserMode mode)
+        public async Task<IActionResult> SetMode([FromQuery]UserMode mode)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
