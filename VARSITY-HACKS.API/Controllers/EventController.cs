@@ -58,6 +58,8 @@ namespace VARSITY_HACKS.API.Controllers
             if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }
+       
+        
         // GET api/event/calendar-events
         [HttpGet("calendar-events")]
         public async Task<IActionResult> GetCalendarEvents()
