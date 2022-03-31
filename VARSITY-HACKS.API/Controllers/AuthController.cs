@@ -80,8 +80,7 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginModel model)
         {
-            var result =
-                await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
             if (!result.Succeeded)
             {
                 return BadRequest(new ResponseModel(false, "Incorrect username or password"));
@@ -190,7 +189,7 @@ namespace VARSITY_HACKS.API.Controllers
 
         // POST api/Auth/logout
         [HttpPost("logout")]
-        public async Task<ActionResult> Logout()
+        public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return Ok(new ResponseModel(true, "Sign Out Successfully"));

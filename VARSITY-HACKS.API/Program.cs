@@ -99,13 +99,6 @@ builder.Services.AddAuthentication()
      });
 
 
-//Cookie Policy needed for External Auth
-//builder.Services.Configure<CookiePolicyOptions>(options =>
-//{
-//    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-//    options.CheckConsentNeeded = context => true;
-//    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-//});
 
 var app = builder.Build();
 
@@ -117,7 +110,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(x => x
-       .WithOrigins("http://localhost:3000")
+        .AllowAnyMethod()
        .AllowAnyHeader()
        .SetIsOriginAllowed(origin => true) // allow any origin
        .AllowCredentials()); // allow credentials
