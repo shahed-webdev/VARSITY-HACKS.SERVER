@@ -114,7 +114,8 @@ namespace VARSITY_HACKS.API.Controllers
         {
             var redirectUrl = Url.Action("ExternalLoginCallback", "Auth", new { ReturnUrl = returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-           
+            properties.AllowRefresh = true;
+
             return Challenge(properties, provider);
         }
 

@@ -87,6 +87,9 @@ builder.Services.AddAuthentication()
          options.ClientId = "452729545424-53qbuc3t0qcmt0v1t4up2sn187svhh28.apps.googleusercontent.com";
          options.ClientSecret = "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";
          options.SignInScheme = IdentityConstants.ExternalScheme;
+
+         //this function is get user google profile image
+         options.Scope.Add("profile");
      })
     .AddFacebook("facebook", options =>
      {
@@ -94,6 +97,15 @@ builder.Services.AddAuthentication()
          options.AppSecret = "68692d606d85bcacc4e5146948b42273";
          options.SignInScheme = IdentityConstants.ExternalScheme;
      });
+
+
+//Cookie Policy needed for External Auth
+//builder.Services.Configure<CookiePolicyOptions>(options =>
+//{
+//    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+//    options.CheckConsentNeeded = context => true;
+//    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+//});
 
 var app = builder.Build();
 
@@ -105,6 +117,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(x => x
+       .WithOrigins("http://localhost:3000")
        .AllowAnyHeader()
        .SetIsOriginAllowed(origin => true) // allow any origin
        .AllowCredentials()); // allow credentials
