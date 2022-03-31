@@ -108,6 +108,7 @@ namespace VARSITY_HACKS.API.Controllers
         }
 
         //jwt token based external login
+        [AllowAnonymous]
         [HttpPost("external-login")]
         public IActionResult ExternalLogin(string provider, string? returnUrl = null)
         {
@@ -119,6 +120,7 @@ namespace VARSITY_HACKS.API.Controllers
 
 
         //ExternalLoginCallback jwt
+        [AllowAnonymous]
         [HttpGet("ExternalLoginCallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
         {
@@ -126,6 +128,7 @@ namespace VARSITY_HACKS.API.Controllers
             {
                 return BadRequest(new ResponseModel(false, "Error from external provider: " + remoteError));
             }
+            
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
