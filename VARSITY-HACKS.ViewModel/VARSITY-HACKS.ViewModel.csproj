@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TimePeriod\TimePeriod.csproj" />
     <ProjectReference Include="..\VARSITY-HACKS.DATA\VARSITY-HACKS.DATA.csproj" />
   </ItemGroup>
 
