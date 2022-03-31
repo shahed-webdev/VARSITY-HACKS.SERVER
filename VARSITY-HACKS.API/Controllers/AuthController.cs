@@ -107,6 +107,60 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(new ResponseModel<string>(true, "Token", tokenString));
         }
 
+        //jwt token based external login
+        [HttpPost("external-login")]
+        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Auth", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+           
+            return Challenge(properties, provider);
+        }
+
+
+        //ExternalLoginCallback jwt
+        [HttpGet("ExternalLoginCallback")]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                return BadRequest(new ResponseModel(false, "Error from external provider: " + remoteError));
+            }
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return BadRequest(new ResponseModel(false, "Error loading external login information."));
+            }
+
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            if (result.Succeeded)
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var user = new IdentityUser() { UserName = email, Email = email };
+                var createResult = await _userManager.CreateAsync(user);
+               
+                if (!createResult.Succeeded)
+                {
+                    return BadRequest(new ResponseModel(false, "Error creating user"));
+                }
+                
+                var addLoginResult = await _userManager.AddLoginAsync(user, info);
+                
+                if (!addLoginResult.Succeeded)
+                {
+                    return BadRequest(new ResponseModel(false, "Error adding external login"));
+                }
+                
+                await _signInManager.SignInAsync(user, false);
+                return Redirect(returnUrl);
+            }
+        }
+
+
 
         // POST api/Auth/logout
         [HttpPost("logout")]
