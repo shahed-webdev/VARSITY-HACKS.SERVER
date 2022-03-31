@@ -80,6 +80,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 
 
+//google, facebook authentication
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = "452729545424-53qbuc3t0qcmt0v1t4up2sn187svhh28.apps.googleusercontent.com";
+        options.ClientSecret = "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";
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddFacebook(options =>
+    {
+        options.AppId = "1709711546047084";
+        options.AppSecret = "68692d606d85bcacc4e5146948b42273";
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+    });
 
 var app = builder.Build();
 
