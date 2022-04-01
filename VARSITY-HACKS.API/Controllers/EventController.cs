@@ -20,7 +20,19 @@ namespace VARSITY_HACKS.API.Controllers
         {
             _event = @event;
         }
-       
+
+        // Post api/event/IsEventConflicting
+        [HttpPost("IsEventConflicting")]
+        public async Task<IActionResult> IsEventConflicting(UserEventAddModel model)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.IsEventConflictingAsync(userName, model);
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }
+
         // POST api/event/add
         [HttpPost("add")]
         public async Task<IActionResult> AddEvent(UserEventAddModel model)
