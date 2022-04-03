@@ -40,6 +40,45 @@ public class UserEventRepository : Repository, IUserEventRepository
             returnModel);
     }
 
+    public int AddEventWithCalenderEvents(int registrationId, UserEventAddModel model)
+    {
+        var userEvent = _mapper.Map<UserEvent>(model);
+        userEvent.RegistrationId = registrationId;
+        Db.UserEvents.Add(userEvent);
+        Db.SaveChanges();
+
+        var userCalendarEvents = new List<UserCalendarEvent>();
+        foreach (var date in EachDate(userEvent.StartDate, userEvent.EndDate))
+        {
+            if (userEvent.Days.Any(d => d.Day == date.DayOfWeek))
+            {
+                var userCalendarEvent = _mapper.Map<UserCalendarEvent>(userEvent);
+                userCalendarEvent.EventDate = date;
+
+                userCalendarEvents.Add(userCalendarEvent);
+            }
+        }
+
+        Db.UserCalendarEvents.AddRange(userCalendarEvents);
+        Db.SaveChanges();
+        return userEvent.UserEventId;
+    }
+
+    public void AddSuggestedEvents(IEnumerable<UserSuggestedEventAddModel> model)
+    {
+        var userSuggestedEvents = model.Select(m => _mapper.Map<UserCalendarEvent>(m)).ToList();
+        Db.UserCalendarEvents.AddRange(userSuggestedEvents);
+        Db.SaveChanges();
+    }
+
+    public List<UserCalendarViewModel> GetCalenderEventsById(int registrationId, int userEventId)
+    {
+        var returnModel = Db.UserCalendarEvents.Where(r => r.RegistrationId == registrationId && r.UserEventId == userEventId)
+            .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider).ToList();
+
+        return returnModel;
+    }
+
     public ResponseModel<UserEventViewModel> Get(int id)
     {
         var userEven = Db.UserEvents.Where(r => r.UserEventId == id)
@@ -75,6 +114,14 @@ public class UserEventRepository : Repository, IUserEventRepository
     public List<UserCalendarViewModel> CalendarList(int registrationId)
     {
         return Db.UserCalendarEvents.Where(m => m.RegistrationId == registrationId)
+            .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider)
+            .OrderBy(a => a.EventName)
+            .ToList();
+    }
+
+    public List<UserCalendarViewModel> CalendarList(int registrationId, DateTime fromDate, DateTime toDate)
+    {
+        return Db.UserCalendarEvents.Where(m => m.RegistrationId == registrationId && m.EventDate >= fromDate && m.EventDate <= toDate)
             .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider)
             .OrderBy(a => a.EventName)
             .ToList();

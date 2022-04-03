@@ -26,7 +26,34 @@ public class EventCore : Core, IEventCore
                 return Task.FromResult(
                     new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} already Exist"));
 
-            return Task.FromResult(_db.UserEvent.Add(registrationId, model));
+            var userEventId = _db.UserEvent.AddEventWithCalenderEvents(registrationId, model);
+
+            if (userEventId == 0)
+                return Task.FromResult(
+                    new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} Not Added"));
+
+            if (model.EventType == EventType.School)
+            {
+                var personality = _db.Registration.GetPersonalityType(userName);
+
+                ISuggestedStudy study = personality switch
+                {
+                    PersonalityType.EarlyBird => new SuggestedStudyEarlyBird(model.StartDate, model.EndDate,
+                        model.Difficulty, model.Days),
+                    PersonalityType.NightOwl => new SuggestedStudyNightOwl(model.StartDate, model.EndDate,
+                        model.Difficulty, model.Days),
+                    _ => new SuggestedStudyWeekendWarrior(model.StartDate, model.EndDate, model.Difficulty, model.Days)
+                };
+
+                study.AddSuggestedStudy(registrationId, userEventId, model.Difficulty, _db);
+
+            }
+
+            var data = _db.UserEvent.GetCalenderEventsById(registrationId, userEventId);
+
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, "Success", data));
+
+
         }
         catch (Exception e)
         {
@@ -40,7 +67,7 @@ public class EventCore : Core, IEventCore
         try
         {
             var registrationId = _db.Registration.RegistrationIdByUserName(userName);
-            var data = _db.UserEvent.CalendarList(registrationId);
+            var data = _db.UserEvent.CalendarList(registrationId, model.StartDate.AddDays(-1), model.EndDate.AddDays(1));
 
             var timePeriods = new TimePeriodCollection();
 

@@ -84,4 +84,10 @@ public class RegistrationRepository:Repository, IRegistrationRepository
         Db.SaveChanges();
         return new ResponseModel<string>(true, $"Update Successfully", registration.Mode.ToString());
     }
+
+    public PersonalityType GetPersonalityType(string userName)
+    {
+        var registration = Db.Registrations.FirstOrDefault(r => r.UserName == userName);
+        return registration?.Personality ?? PersonalityType.EarlyBird;
+    }
 }

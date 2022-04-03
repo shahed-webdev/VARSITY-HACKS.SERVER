@@ -15,7 +15,15 @@ public class UserCalendarEventConfiguration:IEntityTypeConfiguration<UserCalenda
             .HasComputedColumnSql("(CAST(EventDate AS DATETIME) + CAST(StartTime AS DATETIME))", true);
         builder.Property(e => e.EndDateTime)
             .HasColumnType("datetime")
-            .HasComputedColumnSql("(CAST(EventDate AS DATETIME) + CAST(EndTime AS DATETIME))", true);
+        .HasComputedColumnSql("(DATEADD(MINUTE, [DurationMinute], (CONVERT([datetime],[EventDate])+CONVERT([datetime],[StartTime]))))", true);
+
+        builder.Property(e => e.EndTime)
+            .HasComputedColumnSql("(DATEADD(MINUTE, DurationMinute, StartTime))", true);
+        
+        builder.Property(e => e.DurationMinute)
+            .IsRequired()
+            .HasDefaultValueSql("0");
+        
         builder.Property(e => e.InsertDateUtc)
             .HasColumnType("datetime")
             .HasDefaultValueSql("getutcdate()");
@@ -32,6 +40,10 @@ public class UserCalendarEventConfiguration:IEntityTypeConfiguration<UserCalenda
             .IsRequired()
             .HasDefaultValueSql("((1))");
 
+        builder.Property(e => e.IsSuggested)
+            .IsRequired()
+            .HasDefaultValueSql("((0))");
+        
         builder.HasOne(d => d.Registration)
             .WithMany(p => p.CalendarEvents)
             .HasForeignKey(d => d.RegistrationId)

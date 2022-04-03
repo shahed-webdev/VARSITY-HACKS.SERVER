@@ -31,6 +31,7 @@ public class EventMappingProfile: Profile
 
 
         CreateMap<UserEvent, UserCalendarEvent>().ReverseMap();
+        CreateMap<UserSuggestedEventAddModel, UserCalendarEvent>().ReverseMap();
 
 
     }

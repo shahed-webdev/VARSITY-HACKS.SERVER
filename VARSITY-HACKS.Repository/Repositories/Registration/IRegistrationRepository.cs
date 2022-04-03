@@ -11,4 +11,5 @@ public interface IRegistrationRepository
     ResponseModel<RegistrationEditModel> Get(string userName);
     ResponseModel<string> GetMode(string userName);
     ResponseModel<string> SetMode(string userName, UserMode mode);
+    PersonalityType GetPersonalityType(string userName);
 }

@@ -13,4 +13,5 @@ public class UserCalendarViewModel
     public string Difficulty { get; set; } = null!;
     public string Priority { get; set; } = null!;
     public bool IsSimultaneous { get; set; }
+    public bool IsSuggested { get; set; }
 }
