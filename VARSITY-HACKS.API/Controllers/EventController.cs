@@ -47,8 +47,9 @@ namespace VARSITY_HACKS.API.Controllers
             return Created("",response);
         }
 
+        // Delete sidebar event
         // Delete api/event/DeleteEvent
-        [HttpDelete("DeleteEvent")]
+        [HttpDelete("DeleteEvent/{userEventId}")]
         public async Task<IActionResult> DeleteEvent(int userEventId)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -59,18 +60,20 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        
         // Delete api/event/DeleteCalendarEvent
-        [HttpDelete("DeleteCalendarEvent")]
-        public async Task<IActionResult> DeleteCalenderEvent(int calendarEventId)
+        [HttpDelete("DeleteCalendarEvent/{userCalendarEventId}")]
+        public async Task<IActionResult> DeleteCalenderEvent(int userCalendarEventId)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
-            var response = await _event.DeleteCalendarEventAsync(userName, calendarEventId);
+            var response = await _event.DeleteCalendarEventAsync(userName, userCalendarEventId);
             if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }
 
+        
         // Edit api/event/EditCalendarEvent 
         [HttpPut("EditCalendarEvent")]
         public async Task<IActionResult> EditCalendarEvent(UserCalendarEventEditModel model)
@@ -97,6 +100,7 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        
         // GET api/event/get-all-type
         [HttpGet("get-all-type")]
         public async Task<IActionResult> GetTypeWiseEvents()
