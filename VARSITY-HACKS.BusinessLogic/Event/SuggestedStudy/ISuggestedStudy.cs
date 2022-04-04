@@ -6,5 +6,6 @@ namespace VARSITY_HACKS.BusinessLogic;
 
 public interface ISuggestedStudy
 {
-    void AddSuggestedStudy(int registrationId, int userEventId, DifficultyLevel difficulty, IUnitOfWork db);
+    void AddSuggestedStudy(int registrationId, int userEventId, PersonalityType type, DifficultyLevel difficulty,
+        IUnitOfWork db);
 }

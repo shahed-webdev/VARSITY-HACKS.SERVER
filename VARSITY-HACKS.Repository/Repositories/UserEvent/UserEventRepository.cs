@@ -11,36 +11,6 @@ public class UserEventRepository : Repository, IUserEventRepository
     public UserEventRepository(ApplicationDbContext db, IMapper mapper) : base(db, mapper)
     {
     }
-
-    public ResponseModel<List<UserCalendarViewModel>> Add(int registrationId, UserEventAddModel model)
-    {
-        var userEvent = _mapper.Map<UserEvent>(model);
-        userEvent.RegistrationId = registrationId;
-        Db.UserEvents.Add(userEvent);
-        Db.SaveChanges();
-
-        var userCalendarEvents = new List<UserCalendarEvent>();
-        foreach (DateTime date in EachDate(userEvent.StartDate, userEvent.EndDate))
-        {
-            if (userEvent.Days.Any(d => d.Day == date.DayOfWeek))
-            {
-                var userCalendarEvent = _mapper.Map<UserCalendarEvent>(userEvent);
-                userCalendarEvent.EventDate = date;
-
-                userCalendarEvents.Add(userCalendarEvent);
-            }
-        }
-
-        Db.UserCalendarEvents.AddRange(userCalendarEvents);
-        Db.SaveChanges();
-
-        var returnModel = Db.UserCalendarEvents.Where(r => r.UserEventId == userEvent.UserEventId)
-            .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider).ToList();
-
-        return new ResponseModel<List<UserCalendarViewModel>>(true, $"{model.EventName} Added Successfully",
-            returnModel);
-    }
-
     public int AddEventWithCalenderEvents(int registrationId, UserEventAddModel model)
     {
         var userEvent = _mapper.Map<UserEvent>(model);
@@ -63,6 +33,46 @@ public class UserEventRepository : Repository, IUserEventRepository
         Db.UserCalendarEvents.AddRange(userCalendarEvents);
         Db.SaveChanges();
         return userEvent.UserEventId;
+    }
+
+    public void EditEventWithCalenderEvents(int registrationId, UserEventEditModel model)
+    {
+        var userEvent = Db.UserEvents.FirstOrDefault(e => e.RegistrationId == registrationId && e.UserEventId == model.UserEventId);
+        if (userEvent == null)
+        {
+            throw new Exception("Event not found");
+        }
+
+        userEvent.EventName = model.EventName;
+        userEvent.StartDate = model.StartDate;
+        userEvent.EndDate = model.EndDate;
+        userEvent.Days = model.Days.Select(d => new UserEventDay{ Day = d }).ToList();
+        userEvent.DurationMinute = model.DurationMinute;
+        userEvent.StartTime = TimeSpan.Parse(model.StartTime);
+        userEvent.BackgroundColor = model.BackgroundColor;
+        userEvent.Difficulty = model.Difficulty;
+        userEvent.Priority = model.Priority;
+        userEvent.IsSimultaneous = model.IsSimultaneous;
+
+
+        Db.UserEvents.Update(userEvent);
+        Db.SaveChanges();
+
+        var userCalendarEvents = new List<UserCalendarEvent>();
+        foreach (var date in EachDate(userEvent.StartDate, userEvent.EndDate))
+        {
+            if (userEvent.Days.Any(d => d.Day == date.DayOfWeek))
+            {
+                var userCalendarEvent = _mapper.Map<UserCalendarEvent>(userEvent);
+                userCalendarEvent.EventDate = date;
+
+                userCalendarEvents.Add(userCalendarEvent);
+            }
+        }
+
+        Db.UserCalendarEvents.AddRange(userCalendarEvents);
+        Db.SaveChanges();
+
     }
 
     public void AddSuggestedEvents(IEnumerable<UserSuggestedEventAddModel> model)
@@ -102,6 +112,18 @@ public class UserEventRepository : Repository, IUserEventRepository
 
     }
 
+    public void DeleteAllCalendarEvents(int registrationId, int userEventId)
+    {
+        var calendarEvents = Db.UserCalendarEvents
+            .Where(r => r.RegistrationId == registrationId && r.UserEventId == userEventId).ToList();
+
+
+        Db.UserCalendarEvents.RemoveRange(calendarEvents);
+        Db.SaveChanges();
+
+        
+    }
+
     public bool IsExistName(int registrationId, string name)
     {
         return Db.UserEvents.Any(r => r.RegistrationId == registrationId && r.EventName == name);
@@ -137,6 +159,14 @@ public class UserEventRepository : Repository, IUserEventRepository
     public List<UserCalendarViewModel> CalendarList(int registrationId, DateTime fromDate, DateTime toDate)
     {
         return Db.UserCalendarEvents.Where(m => m.RegistrationId == registrationId && m.EventDate >= fromDate && m.EventDate <= toDate)
+            .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider)
+            .OrderBy(a => a.EventName)
+            .ToList();
+    }
+
+    public List<UserCalendarViewModel> CalendarList(int registrationId, int withoutUserEventId, DateTime fromDate, DateTime toDate)
+    {
+        return Db.UserCalendarEvents.Where(m => m.RegistrationId == registrationId && m.UserEventId != withoutUserEventId && m.EventDate >= fromDate && m.EventDate <= toDate)
             .ProjectTo<UserCalendarViewModel>(_mapper.ConfigurationProvider)
             .OrderBy(a => a.EventName)
             .ToList();

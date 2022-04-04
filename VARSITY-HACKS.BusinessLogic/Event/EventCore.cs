@@ -36,22 +36,65 @@ public class EventCore : Core, IEventCore
             {
                 var personality = _db.Registration.GetPersonalityType(userName);
 
-                ISuggestedStudy study = personality switch
-                {
-                    PersonalityType.EarlyBird => new SuggestedStudyEarlyBird(model.StartDate, model.EndDate,
-                        model.Difficulty, model.Days),
-                    PersonalityType.NightOwl => new SuggestedStudyNightOwl(model.StartDate, model.EndDate,
-                        model.Difficulty, model.Days),
-                    _ => new SuggestedStudyWeekendWarrior(model.StartDate, model.EndDate, model.Difficulty, model.Days)
-                };
-
-                study.AddSuggestedStudy(registrationId, userEventId, model.Difficulty, _db);
+                ISuggestedStudy study = new SuggestedStudy(model.StartDate, model.EndDate, model.Days);
+                
+                study.AddSuggestedStudy(registrationId, userEventId, personality, model.Difficulty, _db);
 
             }
 
             var data = _db.UserEvent.GetCalenderEventsById(registrationId, userEventId);
 
-            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, "Success", data));
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, $"{model.EventName} Successfully Added", data));
+
+
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
+    public Task<ResponseModel<List<UserCalendarViewModel>>> EditAsync(string userName, UserEventEditModel model)
+    {
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+
+            if (string.IsNullOrEmpty(model.EventName))
+                return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(false, "Invalid Data"));
+
+
+            if (_db.UserEvent.IsExistName(registrationId, model.EventName, model.UserEventId))
+                return Task.FromResult(
+                    new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} already Exist"));
+
+            var isEventFound = _db.UserEvent.IsNull(model.UserEventId);
+            if (isEventFound)
+                return Task.FromResult(
+                    new ResponseModel<List<UserCalendarViewModel>>(false, $" {model.EventName} Not Found"));
+
+            //Deleting the old event
+            _db.UserEvent.DeleteAllCalendarEvents(registrationId,model.UserEventId);
+
+            //Editing the event
+            _db.UserEvent.EditEventWithCalenderEvents(registrationId, model);
+
+
+            if (model.EventType == EventType.School)
+            {
+                var personality = _db.Registration.GetPersonalityType(userName);
+
+                ISuggestedStudy study = new SuggestedStudy(model.StartDate, model.EndDate, model.Days);
+
+                study.AddSuggestedStudy(registrationId, model.UserEventId, personality, model.Difficulty, _db);
+
+
+            }
+
+            var data = _db.UserEvent.GetCalenderEventsById(registrationId, model.UserEventId);
+
+            return Task.FromResult(new ResponseModel<List<UserCalendarViewModel>>(true, $"{model.EventName} successfully updated"  , data));
 
 
         }
@@ -68,6 +111,43 @@ public class EventCore : Core, IEventCore
         {
             var registrationId = _db.Registration.RegistrationIdByUserName(userName);
             var data = _db.UserEvent.CalendarList(registrationId, model.StartDate.AddDays(-1), model.EndDate.AddDays(1));
+
+            var timePeriods = new TimePeriodCollection();
+
+            foreach (var calendarViewModel in data)
+            {
+                timePeriods.Add(new TimeRange(calendarViewModel.StartDateTime, calendarViewModel.EndDateTime));
+            }
+
+
+            // --- intersection by period ---
+            var isConflict = false;
+            foreach (DateTime date in EachDate(model.StartDate, model.EndDate))
+            {
+                if (model.Days.Any(d => d == date.DayOfWeek))
+                {
+                    var start = date.Add(TimeSpan.Parse(model.StartTime));
+                    var end = start.AddMinutes(model.DurationMinute);
+                    var intersectionPeriod = new TimeRange(start, end);
+                    var periodIntersections = timePeriods.IntersectionPeriods(intersectionPeriod);
+                    isConflict = periodIntersections.Any();
+                    if (isConflict) break;
+                }
+            }
+            return Task.FromResult(new ResponseModel<bool>(true, "", isConflict));
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<bool>(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
+    public Task<ResponseModel<bool>> IsEventEditConflictingAsync(string userName, UserEventEditModel model)
+    {
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+            var data = _db.UserEvent.CalendarList(registrationId,model.UserEventId, model.StartDate.AddDays(-1), model.EndDate.AddDays(1));
 
             var timePeriods = new TimePeriodCollection();
 

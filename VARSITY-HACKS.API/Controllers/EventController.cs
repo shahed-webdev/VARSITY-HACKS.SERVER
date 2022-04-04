@@ -33,6 +33,18 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        // Post api/event/IsEventConflicting
+        [HttpPost("IsEventEditConflicting")]
+        public async Task<IActionResult> IsEventEditConflicting(UserEventEditModel model)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.IsEventEditConflictingAsync(userName, model);
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }        
+
         // POST api/event/add
         [HttpPost("add")]
         public async Task<IActionResult> AddEvent(UserEventAddModel model)
@@ -81,6 +93,17 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        // Edit api/event/EditEvent
+        [HttpPut("EditEvent")]
+        public async Task<IActionResult> EditEvent(UserEventEditModel model)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.EditAsync(userName, model);
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }
 
         // GET api/event/get
         [HttpGet("get/{type}")]
