@@ -181,6 +181,21 @@ public class EventCore : Core, IEventCore
         }
     }
 
+    public Task<ResponseModel<UserCalendarViewModel>> EditCalendarEventAsync(string userName, UserCalendarEventEditModel model)
+    {
+        try
+        {
+            var registrationId = _db.Registration.RegistrationIdByUserName(userName);
+
+            return Task.FromResult(_db.UserEvent.EditCalendarEvent(registrationId, model));
+        }
+        catch (Exception e)
+        {
+            return Task.FromResult(new ResponseModel<UserCalendarViewModel>(false,
+                $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+        }
+    }
+
     private IEnumerable<DateTime> EachDate(DateTime from, DateTime to)
     {
         for (var day = from.Date; day.Date <= to.Date; day = day.AddDays(1))

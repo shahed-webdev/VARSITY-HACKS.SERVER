@@ -155,6 +155,28 @@ public class UserEventRepository : Repository, IUserEventRepository
         return new ResponseModel(true, $"Calendar Event Deleted Successfully");
     }
 
+    public ResponseModel<UserCalendarViewModel> EditCalendarEvent(int registrationId, UserCalendarEventEditModel model)
+    {
+        var userEvent = Db.UserCalendarEvents.Include(u => u.UserEvent)
+            .FirstOrDefault(r =>
+                r.RegistrationId == registrationId && r.UserCalendarEventId == model.UserCalendarEventId);
+
+        if (userEvent == null) return new ResponseModel<UserCalendarViewModel>(false, "Calendar Event Not Found");
+
+        userEvent.EventDate = model.EventDate;
+        userEvent.StartTime = TimeSpan.Parse(model.StartTime);
+        userEvent.DurationMinute = model.DurationMinute;
+        if (userEvent.UserEvent.EventName != model.SubTitle)
+            userEvent.SubTitle = model.SubTitle;
+
+        Db.UserCalendarEvents.Update(userEvent);
+        Db.SaveChanges();
+
+        var calenderView = _mapper.Map<UserCalendarViewModel>(userEvent);
+
+        return new ResponseModel<UserCalendarViewModel>(true, $"Calendar Event Updated Successfully", calenderView);
+    }
+
     private IEnumerable<DateTime> EachDate(DateTime from, DateTime to)
     {
         for (var day = from.Date; day.Date <= to.Date; day = day.AddDays(1))

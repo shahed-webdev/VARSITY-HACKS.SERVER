@@ -69,6 +69,19 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
+        // Edit api/event/EditCalendarEvent 
+        [HttpPut("EditCalendarEvent")]
+        public async Task<IActionResult> EditCalendarEvent(UserCalendarEventEditModel model)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.EditCalendarEventAsync(userName, model);
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }
+
+
         // GET api/event/get
         [HttpGet("get/{type}")]
         public async Task<IActionResult> GetEvents(EventType type)
