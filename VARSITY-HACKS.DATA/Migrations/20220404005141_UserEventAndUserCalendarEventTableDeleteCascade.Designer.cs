@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VARSITY_HACKS.DATA;
 
@@ -11,9 +12,10 @@ using VARSITY_HACKS.DATA;
 namespace VARSITY_HACKS.DATA.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220404005141_UserEventAndUserCalendarEventTableDeleteCascade")]
+    partial class UserEventAndUserCalendarEventTableDeleteCascade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -542,7 +544,6 @@ namespace VARSITY_HACKS.DATA.Migrations
                     b.HasOne("VARSITY_HACKS.DATA.UserEvent", "UserEvent")
                         .WithMany("Days")
                         .HasForeignKey("UserEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_UserEventDay_UserEvent");
 
