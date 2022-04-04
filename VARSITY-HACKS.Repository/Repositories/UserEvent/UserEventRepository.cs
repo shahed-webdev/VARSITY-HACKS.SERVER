@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.ViewModel;
 
@@ -85,6 +86,20 @@ public class UserEventRepository : Repository, IUserEventRepository
             .ProjectTo<UserEventViewModel>(_mapper.ConfigurationProvider)
             .FirstOrDefault();
         return new ResponseModel<UserEventViewModel>(true, $"{userEven!.EventName} Get Successfully", userEven);
+    }
+
+    public ResponseModel Delete(int registrationId, int userEventId)
+    {
+        var userEvent = Db.UserEvents
+            .FirstOrDefault(r => r.RegistrationId == registrationId && r.UserEventId == userEventId);
+        
+        if (userEvent == null) return new ResponseModel(false, "User Event Not Found");
+       
+        Db.UserEvents.Remove(userEvent);
+        Db.SaveChanges();
+       
+        return new ResponseModel(true, $"{userEvent.EventName} Event Deleted Successfully");
+
     }
 
     public bool IsExistName(int registrationId, string name)

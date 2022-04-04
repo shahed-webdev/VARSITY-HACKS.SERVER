@@ -17,7 +17,7 @@ public class UserEventDayConfiguration: IEntityTypeConfiguration<UserEventDay>
         builder.HasOne(d => d.UserEvent)
             .WithMany(p => p.Days)
             .HasForeignKey(d => d.UserEventId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_UserEventDay_UserEvent");
     }
 }

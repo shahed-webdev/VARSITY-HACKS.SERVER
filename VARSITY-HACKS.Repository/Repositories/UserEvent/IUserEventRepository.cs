@@ -10,6 +10,7 @@ public interface IUserEventRepository
     void AddSuggestedEvents(IEnumerable<UserSuggestedEventAddModel> model);
     List<UserCalendarViewModel> GetCalenderEventsById(int registrationId, int userEventId);
     ResponseModel<UserEventViewModel> Get(int id);
+    ResponseModel Delete(int registrationId, int userEventId);
     bool IsExistName(int registrationId, string name);
     bool IsExistName(int registrationId, string name, int updateId);
     bool IsNull(int id);
