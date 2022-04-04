@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\UserCalendarEvent\" />
     <Folder Include="ViewModels\UserEvent\" />
     <Folder Include="ViewModels\Registration\" />
   </ItemGroup>

@@ -17,4 +17,5 @@ public interface IUserEventRepository
     List<UserEventViewModel> List(int registrationId, EventType type);
     List<UserCalendarViewModel> CalendarList(int registrationId);
     List<UserCalendarViewModel> CalendarList(int registrationId, DateTime fromDate, DateTime toDate);
+    ResponseModel DeleteCalendarEvent(int registrationId, int calendarEventId);
 }

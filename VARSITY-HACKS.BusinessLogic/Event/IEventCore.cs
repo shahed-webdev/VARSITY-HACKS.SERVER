@@ -11,4 +11,5 @@ public interface IEventCore
     Task<ResponseModel<EventTypeWiseEventViewModel>> GetTypeWiseEventsAsync(string userName);
     Task<ResponseModel<List<UserCalendarViewModel>>> GetCalendarEventsAsync(string userName);
     Task<ResponseModel> DeleteAsync(string userName, int userEventId);
+    Task<ResponseModel> DeleteCalendarEventAsync(string userName, int calendarEventId);
 }

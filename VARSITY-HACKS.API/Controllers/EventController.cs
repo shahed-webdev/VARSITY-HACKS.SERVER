@@ -45,7 +45,7 @@ namespace VARSITY_HACKS.API.Controllers
             return Created("",response);
         }
 
-        // POST api/event/add
+        // Delete api/event/DeleteEvent
         [HttpDelete("DeleteEvent")]
         public async Task<IActionResult> DeleteEvent(int userEventId)
         {
@@ -53,6 +53,18 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _event.DeleteAsync(userName, userEventId);
+            if (!response.IsSuccess) return BadRequest(response);
+            return Ok(response);
+        }
+
+        // Delete api/event/DeleteCalendarEvent
+        [HttpDelete("DeleteCalendarEvent")]
+        public async Task<IActionResult> DeleteCalenderEvent(int calendarEventId)
+        {
+            var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
+
+            var response = await _event.DeleteCalendarEventAsync(userName, calendarEventId);
             if (!response.IsSuccess) return BadRequest(response);
             return Ok(response);
         }

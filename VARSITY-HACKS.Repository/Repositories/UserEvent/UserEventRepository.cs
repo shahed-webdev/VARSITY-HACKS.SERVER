@@ -142,6 +142,19 @@ public class UserEventRepository : Repository, IUserEventRepository
             .ToList();
     }
 
+    public ResponseModel DeleteCalendarEvent(int registrationId, int calendarEventId)
+    {
+        var userEvent = Db.UserCalendarEvents
+            .FirstOrDefault(r => r.RegistrationId == registrationId && r.UserCalendarEventId == calendarEventId);
+
+        if (userEvent == null) return new ResponseModel(false, "Calendar Event Not Found");
+
+        Db.UserCalendarEvents.Remove(userEvent);
+        Db.SaveChanges();
+
+        return new ResponseModel(true, $"Calendar Event Deleted Successfully");
+    }
+
     private IEnumerable<DateTime> EachDate(DateTime from, DateTime to)
     {
         for (var day = from.Date; day.Date <= to.Date; day = day.AddDays(1))
