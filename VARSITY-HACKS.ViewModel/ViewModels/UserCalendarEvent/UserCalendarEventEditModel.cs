@@ -5,6 +5,6 @@ public class UserCalendarEventEditModel
     public int UserCalendarEventId { get; set; }
     public string? SubTitle { get; set; }
     public DateTime EventDate { get; set; }
-    public string StartTime { get; set; }
+    public string StartTime { get; set; } = null!;
     public int DurationMinute { get; set; }
 }
