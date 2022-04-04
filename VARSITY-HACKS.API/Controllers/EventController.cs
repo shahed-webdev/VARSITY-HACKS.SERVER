@@ -30,9 +30,11 @@ namespace VARSITY_HACKS.API.Controllers
 
             var response = await _event.IsEventConflictingAsync(userName, model);
             if (!response.IsSuccess) return BadRequest(response);
+            
             return Ok(response);
         }
 
+        
         // POST api/event/add
         [HttpPost("add")]
         public async Task<IActionResult> AddEvent(UserEventAddModel model)
