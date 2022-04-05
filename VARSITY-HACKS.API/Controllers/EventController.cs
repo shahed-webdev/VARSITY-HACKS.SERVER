@@ -58,8 +58,8 @@ namespace VARSITY_HACKS.API.Controllers
             return Created("",response);
         }
 
-        // Delete sidebar event
-        // Delete api/event/DeleteEvent
+   
+        // Delete api/event/DeleteEvent(sidebar)
         [HttpDelete("DeleteEvent/{userEventId}")]
         public async Task<IActionResult> DeleteEvent(int userEventId)
         {
@@ -97,7 +97,7 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(response);
         }
 
-        // Edit api/event/EditEvent
+        // Edit api/event/EditEvent(sidebar)
         [HttpPut("EditEvent")]
         public async Task<IActionResult> EditEvent(UserEventEditModel model)
         {
