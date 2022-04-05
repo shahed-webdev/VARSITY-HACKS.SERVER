@@ -163,7 +163,7 @@ namespace VARSITY_HACKS.API.Controllers
 
                 var newUser = new IdentityUser() { UserName = email, Email = email };
                 var createResult = await _userManager.CreateAsync(newUser);
-
+                await _registration.CreateAsync(userInfo.Name, email);
                 if (!createResult.Succeeded)
                 {
                     return BadRequest(new ResponseModel(false, "Error creating user"));
