@@ -97,8 +97,8 @@ builder.Services.AddAuthentication()
          options.AppSecret = "68692d606d85bcacc4e5146948b42273";
          options.SignInScheme = IdentityConstants.ExternalScheme;
      });
-
-
+//for Facebook login
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
