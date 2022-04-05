@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VARSITY_HACKS.BusinessLogic;
 using VARSITY_HACKS.BusinessLogic.Registration;
 using VARSITY_HACKS.DATA;
 using VARSITY_HACKS.ViewModel;
@@ -22,13 +23,15 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
         private readonly IRegistrationCore _registration;
+        private readonly IFacebookAuthService _facebookAuthService;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IFacebookAuthService facebookAuthService)
         {
             _userManager = userManager;
             _config = config;
             _signInManager = signInManager;
             _registration = registration;
+            _facebookAuthService = facebookAuthService;
         }
 
         // POST api/Auth/register
@@ -117,10 +120,72 @@ namespace VARSITY_HACKS.API.Controllers
 
             return Challenge(properties, provider);
         }
-
-
         //ExternalLoginCallback jwt
         [AllowAnonymous]
+        [HttpGet("FacebookLogin")]
+        public async Task<IActionResult> FacebookLogin(string accessToken)
+        {
+            var validateTokenResult = await _facebookAuthService.ValidateAccessTokenAsync(accessToken);
+
+            if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
+
+            var userInfo = await _facebookAuthService.GetUserInfoAsync(accessToken);
+            
+            
+
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+            
+            var email = userInfo.Email;
+            
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, email),
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Email, email),
+            };
+            var token = new JwtSecurityToken
+            (
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(60),
+                notBefore: DateTime.UtcNow,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
+            );
+
+            if (user != null)
+            {
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                return Ok(new ResponseModel<string>(true, "Token", tokenString));
+            }
+            else
+            {
+
+                var newUser = new IdentityUser() { UserName = email, Email = email };
+                var createResult = await _userManager.CreateAsync(newUser);
+
+                if (!createResult.Succeeded)
+                {
+                    return BadRequest(new ResponseModel(false, "Error creating user"));
+                }
+
+                //var addLoginResult = await _userManager.AddLoginAsync(newUser, info);
+
+                //if (!addLoginResult.Succeeded)
+                //{
+                //    return BadRequest(new ResponseModel(false, "Error adding external login"));
+                //}
+
+                await _signInManager.SignInAsync(newUser, false);
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                return Ok(new ResponseModel<string>(true, "Token", tokenString));
+
+            }
+        }
+
+        //ExternalLoginCallback jwt
+            [AllowAnonymous]
         [HttpGet("ExternalLoginCallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
         {

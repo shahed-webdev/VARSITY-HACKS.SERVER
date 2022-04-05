@@ -78,7 +78,7 @@ public class SuggestedStudy :ISuggestedStudy
 
         var eventBreak = SuggestedStudyRuleClass.EventBreakDuration;
         
-        foreach (DateTime date in dates)
+        foreach (var date in dates)
         {
 
             var starDateTime = date.Date + starTime;
@@ -86,7 +86,7 @@ public class SuggestedStudy :ISuggestedStudy
             var limits = new CalendarTimeRange(starDateTime, endDateTime);
 
             var gapCalculator = new TimeGapCalculator<TimeRange>();
-            ITimePeriodCollection calcCaps = gapCalculator.GetGaps(timePeriods, limits);
+            var calcCaps = gapCalculator.GetGaps(timePeriods, limits);
             calcCaps.SortByDuration(ListSortDirection.Descending);
 
             if (calcCaps.Count > 0)
@@ -96,13 +96,13 @@ public class SuggestedStudy :ISuggestedStudy
                 if (gapDuration >= suggestedStudyDuration)
                 {
                     var initialBreak = gapDuration - suggestedStudyDuration >= eventBreak ? eventBreak : 0;
-                    var startTime = maxGap.Start == starDateTime ? maxGap.Start.TimeOfDay : maxGap.Start.AddMinutes(initialBreak).TimeOfDay;
+                    var startTime = maxGap?.Start == starDateTime ? maxGap.Start.TimeOfDay : maxGap?.Start.AddMinutes(initialBreak).TimeOfDay;
                     suggestedEvents.Add(new UserSuggestedEventAddModel
                     {
                         UserEventId = userEventId,
                         RegistrationId = registrationId,
                         EventDate = date,
-                        StartTime = startTime,
+                        StartTime = startTime.GetValueOrDefault(),
                         DurationMinute = suggestedStudyDuration,
                         Difficulty = difficulty
                     });
