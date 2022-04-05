@@ -15,4 +15,5 @@ public class UserEventViewModel
     public string Priority { get; set; } = null!;
     public bool IsSimultaneous { get; set; }
     public DateTime InsertDateUtc { get; set; }
+    public DayOfWeek[] Days { get; set; } = null!;
 }

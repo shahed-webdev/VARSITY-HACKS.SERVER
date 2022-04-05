@@ -19,6 +19,8 @@ public class EventMappingProfile: Profile
             .ForMember(d => d.EventType, opt => opt.MapFrom(c => c.EventType.ToString()))
             .ForMember(d => d.Priority, opt => opt.MapFrom(c => c.Priority.ToString()))
             .ForMember(d => d.Difficulty, opt => opt.MapFrom(c => c.Difficulty.ToString()))
+            .ForMember(d => d.Days, opt => opt.MapFrom(c => c.Days.Select(d => d.Day).ToArray()))
+            
             .ReverseMap();
         CreateMap<UserCalendarEvent, UserCalendarViewModel>()
             .ForMember(d => d.EventName, opt => opt.MapFrom(c => c.UserEvent.EventName))
