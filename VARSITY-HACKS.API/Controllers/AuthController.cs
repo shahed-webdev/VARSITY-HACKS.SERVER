@@ -22,10 +22,10 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
         private readonly IRegistrationCore _registration;
-        private readonly IExternalAuthService _externalAuthService; 
+        private readonly IExternalAuthService _externalAuthService;
         private readonly IEmailSender _emailSender;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IExternalAuthService externalAuthService, IEmailSender emailSender)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config, SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IExternalAuthService externalAuthService, IEmailSender emailSender)
         {
             _userManager = userManager;
             _config = config;
@@ -42,7 +42,7 @@ namespace VARSITY_HACKS.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
-            
+
             var user = new IdentityUser() { UserName = model.Email, Email = model.Email };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -51,7 +51,7 @@ namespace VARSITY_HACKS.API.Controllers
             {
                 return BadRequest(new ResponseModel(false, result.Errors.First().Description));
             }
-            
+
             await _registration.CreateAsync(model.Name, model.Email);
 
             var claims = new[]
@@ -68,7 +68,7 @@ namespace VARSITY_HACKS.API.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(60),
                 notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
@@ -100,7 +100,7 @@ namespace VARSITY_HACKS.API.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(60),
                 notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
@@ -110,7 +110,7 @@ namespace VARSITY_HACKS.API.Controllers
         //External Facebook Login jwt
         [AllowAnonymous]
         [HttpPost("FacebookLogin")]
-        public async Task<IActionResult> FacebookLogin([FromBody]string accessToken)
+        public async Task<IActionResult> FacebookLogin([FromBody] string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
 
@@ -174,7 +174,7 @@ namespace VARSITY_HACKS.API.Controllers
         //External Google Login jwt
         [AllowAnonymous]
         [HttpPost("GoogleLogin")]
-        public async Task<IActionResult> GoogleLogin([FromBody]string accessToken)
+        public async Task<IActionResult> GoogleLogin([FromBody] string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateGoogleUserInfoAsync(accessToken);
 
@@ -243,23 +243,24 @@ namespace VARSITY_HACKS.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
-           
+
             var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
             if (user == null)
                 return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
-          
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             var tokenEncoded = Uri.EscapeDataString(token);
-             var sb = new StringBuilder();
+            var sb = new StringBuilder();
+
             sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
-            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={tokenEncoded}&email={user.Email}'>Click here to change your password</a><br/>");            
+            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={tokenEncoded}&email={user.Email}'>Click here to change your password</a><br/>");
             sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
-            
+
             var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
-            
+
             await _emailSender.SendEmailAsync(message);
-            
+
             return Ok(new ResponseModel(true, "Reset password token sent to your email"));
         }
 
@@ -270,14 +271,14 @@ namespace VARSITY_HACKS.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
-          
+
             var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
-           
+
             if (user == null)
                 return BadRequest(new ResponseModel(false, $"{resetPasswordModel.Email} not valid email"));
-           
+
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
-          
+
             if (!resetPassResult.Succeeded)
                 return BadRequest(new ResponseModel(false, resetPassResult.Errors.FirstOrDefault()!.Description));
 
@@ -293,7 +294,7 @@ namespace VARSITY_HACKS.API.Controllers
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
 
             var response = await _registration.GetUserAsync(userName);
-            
+
             if (!response.IsSuccess) return BadRequest(response.Message);
             return Ok(response);
         }
@@ -303,18 +304,18 @@ namespace VARSITY_HACKS.API.Controllers
         public async Task<IActionResult> PutUser([FromForm] RegistrationEditModelWithFormFile model)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-           
+
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
-            
+
             if (model.FormFile != null && model.FormFile.Length > 0)
             {
                 model.Image = await model.FormFile.GetBytesAsync();
             }
 
             var response = await _registration.EditAsync(userName, model);
-            
+
             if (!response.IsSuccess) return BadRequest(response.Message);
-           
+
             return Ok(response);
         }
 
@@ -334,7 +335,7 @@ namespace VARSITY_HACKS.API.Controllers
 
         // GET api/Auth/get-mode
         [HttpPut("set-mode")]
-        public async Task<IActionResult> SetMode([FromQuery]UserMode mode)
+        public async Task<IActionResult> SetMode([FromQuery] UserMode mode)
         {
             var userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userName)) return BadRequest("user not found");
