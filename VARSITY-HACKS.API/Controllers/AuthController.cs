@@ -257,7 +257,7 @@ namespace VARSITY_HACKS.API.Controllers
             
             var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
             await _emailSender.SendEmailAsync(message);
-             return Ok(forgotPasswordModel);
+            return Ok(new ResponseModel(true, "Reset password token sent to your email"));
         }
 
         // POST api/Auth/ResetPassword
