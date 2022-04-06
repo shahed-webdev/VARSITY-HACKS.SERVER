@@ -12,6 +12,7 @@ namespace VARSITY_HACKS.BusinessLogic
             services.AddTransient<IRegistrationCore, RegistrationCore>();
             services.AddTransient<IEventCore, EventCore>();
             services.AddSingleton<IExternalAuthService, ExternalAuthService>();
+            services.AddScoped<IEmailSender, EmailSender>();
 
 
             return services;

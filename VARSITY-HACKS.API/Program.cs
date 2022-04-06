@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using VARSITY_HACKS.BusinessLogic;
 using VARSITY_HACKS.DATA;
+using VARSITY_HACKS.ViewModel;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -97,6 +98,13 @@ builder.Services.AddAuthentication()
          options.AppSecret = "68692d606d85bcacc4e5146948b42273";
          options.SignInScheme = IdentityConstants.ExternalScheme;
      });
+
+// Add the following to the request pipeline only in development environment Email send.
+var emailConfig = config
+    .GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+
 //for Facebook login
 builder.Services.AddHttpClient();
 

@@ -23,15 +23,17 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
         private readonly IRegistrationCore _registration;
-        private readonly IExternalAuthService _externalAuthService;
+        private readonly IExternalAuthService _externalAuthService; 
+        private readonly IEmailSender _emailSender;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IExternalAuthService externalAuthService)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IExternalAuthService externalAuthService, IEmailSender emailSender)
         {
             _userManager = userManager;
             _config = config;
             _signInManager = signInManager;
             _registration = registration;
             _externalAuthService = externalAuthService;
+            _emailSender = emailSender;
         }
 
         // POST api/Auth/register
@@ -39,6 +41,9 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> Register(RegisterModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResponseModel(false,
+                    ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
             var user = new IdentityUser() { UserName = model.Email, Email = model.Email };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -230,6 +235,44 @@ namespace VARSITY_HACKS.API.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok(new ResponseModel(true, "Sign Out Successfully"));
+        }
+
+        // POST api/Auth/ForgotPassword
+        [AllowAnonymous]
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel forgotPasswordModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+            var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
+            if (user == null)
+                return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
+          
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetPasswordUrl = $"{forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}";
+            var message = new Message(new string[] { user.Email }, "Reset password token", resetPasswordUrl);
+            await _emailSender.SendEmailAsync(message);
+             return Ok(forgotPasswordModel);
+        }
+
+        // POST api/Auth/ResetPassword
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel resetPasswordModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResponseModel(false,
+                    ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+            var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
+            if (user == null)
+                return BadRequest(new ResponseModel(false, $"{resetPasswordModel.Email} not valid email"));
+            var resetPassResult =
+                await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
+            if (!resetPassResult.Succeeded)
+                return BadRequest(new ResponseModel(false, resetPassResult.Errors.FirstOrDefault()!.Description));
+
+
+            return Ok(new ResponseModel(true, "Password reset successfully"));
         }
 
         // GET api/Auth/getUsers
