@@ -94,7 +94,7 @@ public class SuggestedStudy :ISuggestedStudy
             {
                 var maxGap = calcCaps.FirstOrDefault();
                 var gapDuration =Convert.ToInt32( maxGap?.Duration.TotalMinutes);
-                if (gapDuration >= totalDurationMinute)
+                if (gapDuration >= suggestedStudyDuration)
                 {
                     var initialBreak = gapDuration - suggestedStudyDuration >= eventBreak ? eventBreak : 0;
                     var startTime = maxGap?.Start == starDateTime ? maxGap.Start.TimeOfDay : maxGap?.Start.AddMinutes(initialBreak).TimeOfDay;
@@ -104,7 +104,7 @@ public class SuggestedStudy :ISuggestedStudy
                         RegistrationId = registrationId,
                         EventDate = date,
                         StartTime = startTime.GetValueOrDefault(),
-                        DurationMinute = totalDurationMinute,
+                        DurationMinute = suggestedStudyDuration,
                         Difficulty = difficulty
                     });
                 }
