@@ -168,8 +168,8 @@ namespace VARSITY_HACKS.API.Controllers
 
         //External Google Login jwt
         [AllowAnonymous]
-        [HttpGet("GoogleLogin")]
-        public async Task<IActionResult> GoogleLogin(string accessToken)
+        [HttpPost("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin([FromBody]string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateGoogleUserInfoAsync(accessToken);
 
