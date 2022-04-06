@@ -250,10 +250,10 @@ namespace VARSITY_HACKS.API.Controllers
           
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-
-            var sb = new StringBuilder();
+            var tokenEncoded = Uri.EscapeDataString(token);
+             var sb = new StringBuilder();
             sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
-            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}'>Click here to change your password</a><br/>");            
+            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={tokenEncoded}&email={user.Email}'>Click here to change your password</a><br/>");            
             sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
             
             var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
