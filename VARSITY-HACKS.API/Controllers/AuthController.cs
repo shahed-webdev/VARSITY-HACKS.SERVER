@@ -112,13 +112,13 @@ namespace VARSITY_HACKS.API.Controllers
             if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
 
             var userInfo = await _externalAuthService.GetFacebookUserInfoAsync(accessToken);
-            
-            
+
+
 
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
-            
+
             var email = userInfo.Email;
-            
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, email),
@@ -142,6 +142,7 @@ namespace VARSITY_HACKS.API.Controllers
             }
             else
             {
+
                 var newUser = new IdentityUser() { UserName = email, Email = email };
                 var createResult = await _userManager.CreateAsync(newUser);
                 await _registration.CreateAsync(userInfo.Name, email);
@@ -164,6 +165,62 @@ namespace VARSITY_HACKS.API.Controllers
 
             }
         }
+
+        //External Google Login jwt
+        [AllowAnonymous]
+        [HttpGet("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin(string accessToken)
+        {
+            var validateTokenResult = await _externalAuthService.ValidateGoogleUserInfoAsync(accessToken);
+
+            if (validateTokenResult.email_verified != "true") return BadRequest(new ResponseModel(false, "Error from google provider"));
+
+            var email = validateTokenResult.email;
+            var name = validateTokenResult.name;
+            var user = await _userManager.FindByEmailAsync(email);
+
+
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, email),
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Email, email),
+            };
+            var token = new JwtSecurityToken
+            (
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(60),
+                notBefore: DateTime.UtcNow,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
+            );
+
+            if (user != null)
+            {
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                return Ok(new ResponseModel<string>(true, "Token", tokenString));
+            }
+            else
+            {
+
+                var newUser = new IdentityUser() { UserName = email, Email = email };
+                var createResult = await _userManager.CreateAsync(newUser);
+                await _registration.CreateAsync(name, email);
+                if (!createResult.Succeeded)
+                {
+                    return BadRequest(new ResponseModel(false, "Error creating user"));
+                }
+
+                await _signInManager.SignInAsync(newUser, false);
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                return Ok(new ResponseModel<string>(true, "Token", tokenString));
+
+            }
+        }
+
 
 
         // POST api/Auth/logout
