@@ -253,11 +253,13 @@ namespace VARSITY_HACKS.API.Controllers
 
             var sb = new StringBuilder();
             sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
-            sb.Append($"<a href={forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}>Click here to change your password</a><br/>");            
+            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}'>Click here to change your password</a><br/>");            
             sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
             
             var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
+            
             await _emailSender.SendEmailAsync(message);
+            
             return Ok(new ResponseModel(true, "Reset password token sent to your email"));
         }
 
@@ -267,13 +269,15 @@ namespace VARSITY_HACKS.API.Controllers
         public async Task<IActionResult> ResetPassword(ResetPasswordModel resetPasswordModel)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ResponseModel(false,
-                    ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+                return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+          
             var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
+           
             if (user == null)
                 return BadRequest(new ResponseModel(false, $"{resetPasswordModel.Email} not valid email"));
-            var resetPassResult =
-                await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
+           
+            var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
+          
             if (!resetPassResult.Succeeded)
                 return BadRequest(new ResponseModel(false, resetPassResult.Errors.FirstOrDefault()!.Description));
 
