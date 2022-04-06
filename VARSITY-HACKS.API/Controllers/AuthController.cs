@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -110,8 +109,8 @@ namespace VARSITY_HACKS.API.Controllers
 
         //External Facebook Login jwt
         [AllowAnonymous]
-        [HttpGet("FacebookLogin")]
-        public async Task<IActionResult> FacebookLogin(string accessToken)
+        [HttpPost("FacebookLogin")]
+        public async Task<IActionResult> FacebookLogin([FromBody]string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
 
@@ -174,8 +173,8 @@ namespace VARSITY_HACKS.API.Controllers
 
         //External Google Login jwt
         [AllowAnonymous]
-        [HttpGet("GoogleLogin")]
-        public async Task<IActionResult> GoogleLogin(string accessToken)
+        [HttpPost("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin([FromBody]string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateGoogleUserInfoAsync(accessToken);
 
