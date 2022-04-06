@@ -41,8 +41,8 @@ namespace VARSITY_HACKS.API.Controllers
         public async Task<ActionResult> Register(RegisterModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ResponseModel(false,
-                    ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+                return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+            
             var user = new IdentityUser() { UserName = model.Email, Email = model.Email };
 
             var result = await _userManager.CreateAsync(user, model.Password);
