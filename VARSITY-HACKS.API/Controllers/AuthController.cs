@@ -113,13 +113,13 @@ namespace VARSITY_HACKS.API.Controllers
             if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
 
             var userInfo = await _externalAuthService.GetFacebookUserInfoAsync(accessToken);
-            
-            
+
+
 
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
-            
+
             var email = userInfo.Email;
-            
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, email),
@@ -143,6 +143,7 @@ namespace VARSITY_HACKS.API.Controllers
             }
             else
             {
+
                 var newUser = new IdentityUser() { UserName = email, Email = email };
                 var createResult = await _userManager.CreateAsync(newUser);
                 await _registration.CreateAsync(userInfo.Name, email);
@@ -166,25 +167,21 @@ namespace VARSITY_HACKS.API.Controllers
             }
         }
 
-        //ExternalLoginCallback jwt
-            [AllowAnonymous]
-        [HttpGet("ExternalLoginCallback")]
-        public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
+        //External Google Login jwt
+        [AllowAnonymous]
+        [HttpGet("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin(string accessToken)
         {
-            if (remoteError != null)
-            {
-                return BadRequest(new ResponseModel(false, "Error from external provider: " + remoteError));
-            }
-            
-            var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
-                return BadRequest(new ResponseModel(false, "Error loading external login information."));
-            }
+            var validateTokenResult = await _externalAuthService.ValidateGoogleUserInfoAsync(accessToken);
 
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (validateTokenResult.email_verified != "true") return BadRequest(new ResponseModel(false, "Error from google provider"));
+
+            var email = validateTokenResult.email;
+            var name = validateTokenResult.name;
+            var user = await _userManager.FindByEmailAsync(email);
+
+
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, email),
@@ -224,6 +221,7 @@ namespace VARSITY_HACKS.API.Controllers
 
             }
         }
+
 
 
         // POST api/Auth/logout
