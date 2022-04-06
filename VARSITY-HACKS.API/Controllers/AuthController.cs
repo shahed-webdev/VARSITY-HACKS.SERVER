@@ -243,6 +243,7 @@ namespace VARSITY_HACKS.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+           
             var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
             if (user == null)
                 return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
@@ -250,8 +251,10 @@ namespace VARSITY_HACKS.API.Controllers
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var resetPasswordUrl = $"{forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}";
             var message = new Message(new string[] { user.Email }, "Reset password token", resetPasswordUrl);
+            
             await _emailSender.SendEmailAsync(message);
-             return Ok(forgotPasswordModel);
+             
+            return Ok(forgotPasswordModel);
         }
 
         // POST api/Auth/ResetPassword
