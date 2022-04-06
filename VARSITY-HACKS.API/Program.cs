@@ -108,6 +108,9 @@ builder.Services.AddSingleton(emailConfig);
 //for Facebook login
 builder.Services.AddHttpClient();
 
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
+    opt.TokenLifespan = TimeSpan.FromHours(5));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
