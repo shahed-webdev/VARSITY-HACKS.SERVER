@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -105,8 +104,8 @@ namespace VARSITY_HACKS.API.Controllers
 
         //External Facebook Login jwt
         [AllowAnonymous]
-        [HttpGet("FacebookLogin")]
-        public async Task<IActionResult> FacebookLogin(string accessToken)
+        [HttpPost("FacebookLogin")]
+        public async Task<IActionResult> FacebookLogin([FromBody]string accessToken)
         {
             var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
 
@@ -157,65 +156,6 @@ namespace VARSITY_HACKS.API.Controllers
                 //{
                 //    return BadRequest(new ResponseModel(false, "Error adding external login"));
                 //}
-
-                await _signInManager.SignInAsync(newUser, false);
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new ResponseModel<string>(true, "Token", tokenString));
-
-            }
-        }
-
-        //ExternalLoginCallback jwt
-            [AllowAnonymous]
-        [HttpGet("ExternalLoginCallback")]
-        public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
-        {
-            if (remoteError != null)
-            {
-                return BadRequest(new ResponseModel(false, "Error from external provider: " + remoteError));
-            }
-            
-            var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
-                return BadRequest(new ResponseModel(false, "Error loading external login information."));
-            }
-
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, email),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email),
-            };
-            var token = new JwtSecurityToken
-            (
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(60),
-                notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
-            );
-
-            if (user != null)
-            {
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new ResponseModel<string>(true, "Token", tokenString));
-            }
-            else
-            {
-
-                var newUser = new IdentityUser() { UserName = email, Email = email };
-                var createResult = await _userManager.CreateAsync(newUser);
-                await _registration.CreateAsync(name, email);
-                if (!createResult.Succeeded)
-                {
-                    return BadRequest(new ResponseModel(false, "Error creating user"));
-                }
 
                 await _signInManager.SignInAsync(newUser, false);
 
