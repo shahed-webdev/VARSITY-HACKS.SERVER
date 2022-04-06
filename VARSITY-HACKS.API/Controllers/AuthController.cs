@@ -248,8 +248,14 @@ namespace VARSITY_HACKS.API.Controllers
                 return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
           
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetPasswordUrl = $"{forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}";
-            var message = new Message(new string[] { user.Email }, "Reset password token", resetPasswordUrl);
+
+
+            var sb = new StringBuilder();
+            sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
+            sb.Append($"<a href={forgotPasswordModel.ResetPasswordUrl}?token={token}&email={user.Email}>Click here to change your password</a><br/>");            
+            sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
+            
+            var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
             await _emailSender.SendEmailAsync(message);
              return Ok(forgotPasswordModel);
         }
