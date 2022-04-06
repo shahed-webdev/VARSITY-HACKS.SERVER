@@ -243,6 +243,7 @@ namespace VARSITY_HACKS.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+           
             var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
             if (user == null)
                 return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
