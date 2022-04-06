@@ -43,14 +43,14 @@ public class SuggestedStudy :ISuggestedStudy
 
         List<UserSuggestedEventAddModel> suggestedEvents = new List<UserSuggestedEventAddModel>();
         //add event date suggested Study
-      var eventDateEvents =  GetSuggestedStudyEvents(registrationId, userEventId, type, difficulty, EventDates, timePeriods,
-            SuggestedStudyRuleClass.WeekdayStarTime(type), SuggestedStudyRuleClass.WeekdayDurationMinute(type));
+      var eventDateEvents =  GetSuggestedStudyEvents(registrationId, userEventId, difficulty, EventDates, timePeriods,
+            SuggestedStudyRuleClass.WeekdayStarTime(type), SuggestedStudyRuleClass.GetEventDateDuration(type, difficulty), SuggestedStudyRuleClass.WeekdayDurationMinute(type));
 
         //add Weekend suggested Study
-       var weekendEvents = GetSuggestedStudyEvents(registrationId, userEventId, type, difficulty, WeekendDates, timePeriods,
-            SuggestedStudyRuleClass.WeekendStarTime(type), SuggestedStudyRuleClass.WeekendDurationMinute(type));
+        var weekendEvents = GetSuggestedStudyEvents(registrationId, userEventId, difficulty, WeekendDates, timePeriods,
+            SuggestedStudyRuleClass.WeekendStarTime(type), SuggestedStudyRuleClass.GetWeekendDuration(type, difficulty), SuggestedStudyRuleClass.WeekendDurationMinute(type));
 
-       suggestedEvents.AddRange(eventDateEvents);
+        suggestedEvents.AddRange(eventDateEvents);
        suggestedEvents.AddRange(weekendEvents);
        
         db.UserEvent.AddSuggestedEvents(suggestedEvents);
@@ -72,17 +72,18 @@ public class SuggestedStudy :ISuggestedStudy
             }
         }
     }
-    private IEnumerable<UserSuggestedEventAddModel> GetSuggestedStudyEvents(int registrationId, int userEventId, PersonalityType type, DifficultyLevel difficulty, List<DateTime> dates, TimePeriodCollection timePeriods, TimeSpan starTime, int suggestedStudyDuration)
+    private IEnumerable<UserSuggestedEventAddModel> GetSuggestedStudyEvents(int registrationId, int userEventId, DifficultyLevel difficulty, List<DateTime> dates, TimePeriodCollection timePeriods, TimeSpan starTime, int suggestedStudyDuration, int totalDurationMinute)
     {
         var suggestedEvents = new List<UserSuggestedEventAddModel>();
 
         var eventBreak = SuggestedStudyRuleClass.EventBreakDuration;
+
         
         foreach (var date in dates)
         {
 
             var starDateTime = date.Date + starTime;
-            var endDateTime = starDateTime.AddMinutes(suggestedStudyDuration);
+            var endDateTime = starDateTime.AddMinutes(totalDurationMinute);
             var limits = new CalendarTimeRange(starDateTime, endDateTime);
 
             var gapCalculator = new TimeGapCalculator<TimeRange>();
@@ -93,7 +94,7 @@ public class SuggestedStudy :ISuggestedStudy
             {
                 var maxGap = calcCaps.FirstOrDefault();
                 var gapDuration =Convert.ToInt32( maxGap?.Duration.TotalMinutes);
-                if (gapDuration >= suggestedStudyDuration)
+                if (gapDuration >= totalDurationMinute)
                 {
                     var initialBreak = gapDuration - suggestedStudyDuration >= eventBreak ? eventBreak : 0;
                     var startTime = maxGap?.Start == starDateTime ? maxGap.Start.TimeOfDay : maxGap?.Start.AddMinutes(initialBreak).TimeOfDay;
@@ -103,7 +104,7 @@ public class SuggestedStudy :ISuggestedStudy
                         RegistrationId = registrationId,
                         EventDate = date,
                         StartTime = startTime.GetValueOrDefault(),
-                        DurationMinute = suggestedStudyDuration,
+                        DurationMinute = totalDurationMinute,
                         Difficulty = difficulty
                     });
                 }

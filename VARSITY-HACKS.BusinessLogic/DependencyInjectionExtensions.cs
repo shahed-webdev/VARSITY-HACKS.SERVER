@@ -11,7 +11,7 @@ namespace VARSITY_HACKS.BusinessLogic
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IRegistrationCore, RegistrationCore>();
             services.AddTransient<IEventCore, EventCore>();
-            services.AddSingleton<IFacebookAuthService, FacebookAuthService>();
+            services.AddSingleton<IExternalAuthService, ExternalAuthService>();
 
 
             return services;

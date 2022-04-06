@@ -23,15 +23,15 @@ namespace VARSITY_HACKS.API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
         private readonly IRegistrationCore _registration;
-        private readonly IFacebookAuthService _facebookAuthService;
+        private readonly IExternalAuthService _externalAuthService;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IFacebookAuthService facebookAuthService)
+        public AuthController(UserManager<IdentityUser> userManager, IConfiguration config,SignInManager<IdentityUser> signInManager, IRegistrationCore registration, IExternalAuthService externalAuthService)
         {
             _userManager = userManager;
             _config = config;
             _signInManager = signInManager;
             _registration = registration;
-            _facebookAuthService = facebookAuthService;
+            _externalAuthService = externalAuthService;
         }
 
         // POST api/Auth/register
@@ -47,13 +47,7 @@ namespace VARSITY_HACKS.API.Controllers
             {
                 return BadRequest(new ResponseModel(false, result.Errors.First().Description));
             }
-
-            //var createModel = new RegistrationCreateModel
-            //{
-            //    UserName = model.Email,
-            //    Name = model.Name
-            //};
-
+            
             await _registration.CreateAsync(model.Name, model.Email);
 
             var claims = new[]
@@ -109,29 +103,16 @@ namespace VARSITY_HACKS.API.Controllers
             return Ok(new ResponseModel<string>(true, "Token", tokenString));
         }
 
-        //jwt token based external login
+        //External Facebook Login jwt
         [AllowAnonymous]
-        [HttpPost("external-login")]
-        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        [HttpGet("FacebookLogin")]
+        public async Task<IActionResult> FacebookLogin(string accessToken)
         {
-            var redirectUrl = Url.Action("ExternalLoginCallback", "Auth", new { ReturnUrl = returnUrl });
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            properties.AllowRefresh = true;
-
-            return Challenge(properties, provider);
-        }
-
-
-        //Facebook Login
-        [AllowAnonymous]
-        [HttpPost("FacebookLogin")]
-        public async Task<IActionResult> FacebookLogin([FromBody]string accessToken)
-        {
-            var validateTokenResult = await _facebookAuthService.ValidateAccessTokenAsync(accessToken);
+            var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
 
             if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
 
-            var userInfo = await _facebookAuthService.GetUserInfoAsync(accessToken);
+            var userInfo = await _externalAuthService.GetFacebookUserInfoAsync(accessToken);
             
             
 
@@ -142,7 +123,7 @@ namespace VARSITY_HACKS.API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, email),
-                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Name, userInfo.Name),
                 new Claim(ClaimTypes.Email, email),
             };
             var token = new JwtSecurityToken
@@ -164,7 +145,7 @@ namespace VARSITY_HACKS.API.Controllers
             {
                 var newUser = new IdentityUser() { UserName = email, Email = email };
                 var createResult = await _userManager.CreateAsync(newUser);
-
+                await _registration.CreateAsync(userInfo.Name, email);
                 if (!createResult.Succeeded)
                 {
                     return BadRequest(new ResponseModel(false, "Error creating user"));
@@ -186,7 +167,7 @@ namespace VARSITY_HACKS.API.Controllers
         }
 
         //ExternalLoginCallback jwt
-        [AllowAnonymous]
+            [AllowAnonymous]
         [HttpGet("ExternalLoginCallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
         {
@@ -207,7 +188,7 @@ namespace VARSITY_HACKS.API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, email),
-                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Name, name),
                 new Claim(ClaimTypes.Email, email),
             };
             var token = new JwtSecurityToken
@@ -220,37 +201,29 @@ namespace VARSITY_HACKS.API.Controllers
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
             );
 
-            if (result.Succeeded)
+            if (user != null)
             {
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
                 return Ok(new ResponseModel<string>(true, "Token", tokenString));
             }
             else
             {
-               
-                var user = new IdentityUser() { UserName = email, Email = email };
-                var createResult = await _userManager.CreateAsync(user);
-               
+
+                var newUser = new IdentityUser() { UserName = email, Email = email };
+                var createResult = await _userManager.CreateAsync(newUser);
+                await _registration.CreateAsync(name, email);
                 if (!createResult.Succeeded)
                 {
                     return BadRequest(new ResponseModel(false, "Error creating user"));
                 }
-                
-                var addLoginResult = await _userManager.AddLoginAsync(user, info);
-                
-                if (!addLoginResult.Succeeded)
-                {
-                    return BadRequest(new ResponseModel(false, "Error adding external login"));
-                }
-                
-                await _signInManager.SignInAsync(user, false);
+
+                await _signInManager.SignInAsync(newUser, false);
 
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
                 return Ok(new ResponseModel<string>(true, "Token", tokenString));
-               
+
             }
         }
-
 
 
         // POST api/Auth/logout
