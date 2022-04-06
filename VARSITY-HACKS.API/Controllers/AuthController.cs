@@ -120,10 +120,12 @@ namespace VARSITY_HACKS.API.Controllers
 
             return Challenge(properties, provider);
         }
-        //ExternalLoginCallback jwt
+
+
+        //Facebook Login
         [AllowAnonymous]
-        [HttpGet("FacebookLogin")]
-        public async Task<IActionResult> FacebookLogin(string accessToken)
+        [HttpPost("FacebookLogin")]
+        public async Task<IActionResult> FacebookLogin([FromBody]string accessToken)
         {
             var validateTokenResult = await _facebookAuthService.ValidateAccessTokenAsync(accessToken);
 
@@ -160,7 +162,6 @@ namespace VARSITY_HACKS.API.Controllers
             }
             else
             {
-
                 var newUser = new IdentityUser() { UserName = email, Email = email };
                 var createResult = await _userManager.CreateAsync(newUser);
 
@@ -185,7 +186,7 @@ namespace VARSITY_HACKS.API.Controllers
         }
 
         //ExternalLoginCallback jwt
-            [AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet("ExternalLoginCallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl, string? remoteError = null)
         {

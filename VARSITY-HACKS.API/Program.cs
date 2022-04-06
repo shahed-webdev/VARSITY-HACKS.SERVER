@@ -110,7 +110,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(x => x
-        .AllowAnyMethod()
+       .AllowAnyMethod()
        .AllowAnyHeader()
        .SetIsOriginAllowed(origin => true) // allow any origin
        .AllowCredentials()); // allow credentials
