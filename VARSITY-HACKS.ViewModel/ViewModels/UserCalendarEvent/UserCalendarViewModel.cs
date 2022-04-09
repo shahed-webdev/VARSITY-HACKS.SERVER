@@ -10,6 +10,7 @@ public class UserCalendarViewModel
     public string? SubTitle { get; set; }
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; }
+    public int DurationMinute { get; set; }
     public string Difficulty { get; set; } = null!;
     public string Priority { get; set; } = null!;
     public bool IsSimultaneous { get; set; }

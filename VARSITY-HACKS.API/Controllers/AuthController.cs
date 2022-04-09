@@ -241,27 +241,35 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel forgotPasswordModel)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new ResponseModel(false, ModelState.Values.FirstOrDefault()!.Errors.FirstOrDefault()!.ErrorMessage));
 
-            var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
-            if (user == null)
-                return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
+                var user = await _userManager.FindByEmailAsync(forgotPasswordModel.Email);
+                if (user == null)
+                    return BadRequest(new ResponseModel(false, $"{forgotPasswordModel.Email} not valid email"));
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            var tokenEncoded = Uri.EscapeDataString(token);
-            var sb = new StringBuilder();
+                var tokenEncoded = Uri.EscapeDataString(token);
+                var sb = new StringBuilder();
 
-            sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
-            sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={tokenEncoded}&email={user.Email}'>Click here to change your password</a><br/>");
-            sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
+                sb.Append("Hi,<br/> Click on below given link to Reset Your Password<br/>");
+                sb.Append($"<a href='{forgotPasswordModel.ResetPasswordUrl}?token={tokenEncoded}&email={user.Email}'>Click here to change your password</a><br/>");
+                sb.Append("<b>Thanks</b>,<br> Varsity Hacks <br/>");
 
-            var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
+                var message = new Message(new string[] { user.Email }, "Reset password token", sb.ToString());
 
-            await _emailSender.SendEmailAsync(message);
+                await _emailSender.SendEmailAsync(message);
 
-            return Ok(new ResponseModel(true, "Reset password token sent to your email"));
+                return Ok(new ResponseModel(true, "Reset password token sent to your email"));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseModel(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+            }
+           
         }
 
         // POST api/Auth/ResetPassword
