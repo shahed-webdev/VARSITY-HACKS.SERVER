@@ -112,63 +112,71 @@ namespace VARSITY_HACKS.API.Controllers
         [HttpPost("FacebookLogin")]
         public async Task<IActionResult> FacebookLogin([FromBody] string accessToken)
         {
-            var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
-
-            if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
-
-            var userInfo = await _externalAuthService.GetFacebookUserInfoAsync(accessToken);
-
-
-
-            var user = await _userManager.FindByEmailAsync(userInfo.Email);
-
-            var email = userInfo.Email;
-
-            var claims = new[]
+            try
             {
+                var validateTokenResult = await _externalAuthService.ValidateFacebookAccessTokenAsync(accessToken);
+
+                if (!validateTokenResult.Data.IsValid) return BadRequest(new ResponseModel(false, "Error from facebook provider"));
+
+                var userInfo = await _externalAuthService.GetFacebookUserInfoAsync(accessToken);
+
+
+
+                var user = await _userManager.FindByEmailAsync(userInfo.Email);
+
+                var email = userInfo.Email;
+
+                var claims = new[]
+                {
                 new Claim(ClaimTypes.NameIdentifier, email),
                 new Claim(ClaimTypes.Name, userInfo.Name),
                 new Claim(ClaimTypes.Email, email),
             };
-            var token = new JwtSecurityToken
-            (
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(60),
-                notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
-            );
+                var token = new JwtSecurityToken
+                (
+                    issuer: _config["Jwt:Issuer"],
+                    audience: _config["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddDays(60),
+                    notBefore: DateTime.UtcNow,
+                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])), SecurityAlgorithms.HmacSha256)
+                );
 
-            if (user != null)
-            {
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new ResponseModel<string>(true, "Token", tokenString));
-            }
-            else
-            {
-
-                var newUser = new IdentityUser() { UserName = email, Email = email };
-                var createResult = await _userManager.CreateAsync(newUser);
-                await _registration.CreateAsync(userInfo.Name, email);
-                if (!createResult.Succeeded)
+                if (user != null)
                 {
-                    return BadRequest(new ResponseModel(false, "Error creating user"));
+                    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                    return Ok(new ResponseModel<string>(true, "Token", tokenString));
                 }
+                else
+                {
 
-                //var addLoginResult = await _userManager.AddLoginAsync(newUser, info);
+                    var newUser = new IdentityUser() { UserName = email, Email = email };
+                    var createResult = await _userManager.CreateAsync(newUser);
+                    await _registration.CreateAsync(userInfo.Name, email);
+                    if (!createResult.Succeeded)
+                    {
+                        return BadRequest(new ResponseModel(false, "Error creating user"));
+                    }
 
-                //if (!addLoginResult.Succeeded)
-                //{
-                //    return BadRequest(new ResponseModel(false, "Error adding external login"));
-                //}
+                    //var addLoginResult = await _userManager.AddLoginAsync(newUser, info);
 
-                await _signInManager.SignInAsync(newUser, false);
+                    //if (!addLoginResult.Succeeded)
+                    //{
+                    //    return BadRequest(new ResponseModel(false, "Error adding external login"));
+                    //}
 
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new ResponseModel<string>(true, "Token", tokenString));
+                    await _signInManager.SignInAsync(newUser, false);
 
+                    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                    return Ok(new ResponseModel<string>(true, "Token", tokenString));
+
+                }
             }
+            catch (Exception e)
+            {
+                return BadRequest(new ResponseModel(false, $"{e.Message}. {e.InnerException?.Message ?? ""}"));
+            }
+            
         }
 
         //External Google Login jwt
