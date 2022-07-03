@@ -54,9 +54,35 @@ public class SuggestedStudy :ISuggestedStudy
        suggestedEvents.AddRange(weekendEvents);
        
         db.UserEvent.AddSuggestedEvents(suggestedEvents);
+
+        //add Night before event date suggested Study
+        AddSuggestedStudyNightBeforeEventDate(registrationId, userEventId, type, difficulty, db);
+
+
+
     }
 
-    private void GetWeekDates()
+
+    public void AddSuggestedStudyNightBeforeEventDate(int registrationId, int userEventId, PersonalityType type, DifficultyLevel difficulty, IUnitOfWork db)
+    {
+       
+        var calendarDates = db.UserEvent.CalendarList(registrationId, _startDate, _endDate);
+
+        var timePeriods = new TimePeriodCollection();
+
+        foreach (var calendarDate in calendarDates)
+        {
+            timePeriods.Add(new TimeRange(calendarDate.StartDateTime, calendarDate.EndDateTime));
+        }
+        var nightBeforeEventDates = EventDates.Select(d => d.AddDays(-1)).ToList();
+
+        var nightBeforeEventDateEvents = GetSuggestedStudyEvents(registrationId, userEventId, difficulty, nightBeforeEventDates, timePeriods,
+              SuggestedStudyRuleClass.WeekdayStarTime(type), SuggestedStudyRuleClass.GetEventDateDuration(type, difficulty), SuggestedStudyRuleClass.WeekdayDurationMinute(type));
+
+        db.UserEvent.AddSuggestedEvents(nightBeforeEventDateEvents);
+    }
+
+        private void GetWeekDates()
     {
 
         for (var date = _startDate.Date; date.Date <= _endDate.Date; date = date.AddDays(1))
